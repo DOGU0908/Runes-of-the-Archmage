@@ -3,6 +3,8 @@
 
 #include "Character/PlayerCharacter.h"
 
+#include "AbilitySystemComponent.h"
+#include "Character/PlayerCharacterState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -27,4 +29,43 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// server init ability actor info
+	InitAbilityActorInfo();
+}
+
+void APlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	// client init ability actor info
+	InitAbilityActorInfo();
+}
+
+/*
+ * Player Controlled Character
+ * 1. When Ability System Component is inside the Pawn
+ * - Server: PossessedBy
+ * - Client: AcknowledgePossession
+ * 2. When Ability System Component is inside Player State
+ * - Server: PossessedBy
+ * - Client: OnRep_PlayerState
+ *
+ * AI Controlled Character
+ * - Server: BeginPlay
+ * - Client: BeginPlay
+ */
+
+void APlayerCharacter::InitAbilityActorInfo()
+{
+	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+	PlayerCharacterState->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacterState, this);
+	AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
+	AttributeSet = PlayerCharacterState->GetAttributeSet();
 }

@@ -9,6 +9,16 @@ ACharacterBase::ACharacterBase()
 	
 }
 
+UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+UAttributeSet* ACharacterBase::GetAttributeSet() const
+{
+	return AttributeSet;
+}
+
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
