@@ -9,6 +9,7 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class IInteractionInterface;
 
 /**
  * 
@@ -20,6 +21,8 @@ class RUNESOFTHEARCHMAGE_API APlayerCharacterController : public APlayerControll
 
 public:
 	APlayerCharacterController();
+
+	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,4 +37,8 @@ private:
 	TObjectPtr<UInputAction> MoveAction;
 
 	void Move(const FInputActionValue& InputActionValue);
+
+	void TraceCursor();
+	TScriptInterface<IInteractionInterface> LastHoverActor;
+	TScriptInterface<IInteractionInterface> CurrentHoverActor;
 };

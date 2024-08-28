@@ -5,11 +5,19 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/InteractionInterface.h"
 
 APlayerCharacterController::APlayerCharacterController()
 {
 	// updating data in server change data in clients
 	bReplicates = true;
+}
+
+void APlayerCharacterController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+
+	TraceCursor();
 }
 
 void APlayerCharacterController::BeginPlay()
@@ -59,4 +67,19 @@ void APlayerCharacterController::Move(const FInputActionValue& InputActionValue)
 		ControlledPawn->AddMovementInput(ForwardVector, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightVector, InputAxisVector.X);
 	}
+}
+
+void APlayerCharacterController::TraceCursor()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
+
+	LastHoverActor = CurrentHoverActor;
+	CurrentHoverActor = CursorHit.GetActor();
+
+	if (LastHoverActor == CurrentHoverActor) return;
+
+	if (LastHoverActor) LastHoverActor->UnHighlightActor();
+	if (CurrentHoverActor) CurrentHoverActor->HighlightActor();
 }

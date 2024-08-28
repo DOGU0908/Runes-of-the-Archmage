@@ -4,3 +4,4 @@
 
 #include "CoreMinimal.h"
 
+#define CUSTOM_DEPTH_INTERACTION 250
