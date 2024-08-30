@@ -29,8 +29,11 @@ void APlayerCharacterController::BeginPlay()
 	 * input mapping
 	 */
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	check(Subsystem);
-	Subsystem->AddMappingContext(CharacterContext, 0);
+	// subsystem may not exist in not locally controlled machines without valid local player
+	if (Subsystem)
+	{
+		Subsystem->AddMappingContext(CharacterContext, 0);
+	}
 
 	/*
 	 * mouse settings

@@ -4,8 +4,10 @@
 #include "Character/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "Character/PlayerCharacterController.h"
 #include "Character/PlayerCharacterState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/HUD/HUDBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -68,4 +70,14 @@ void APlayerCharacter::InitAbilityActorInfo()
 	PlayerCharacterState->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacterState, this);
 	AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
 	AttributeSet = PlayerCharacterState->GetAttributeSet();
+
+	// all 4 key variables to init hud is ensured to be initialized
+	// clients do not have valid player controllers for other characters
+	if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(GetController()))
+	{
+		if (AHUDBase* HUDBase = Cast<AHUDBase>(PlayerCharacterController->GetHUD()))
+		{
+			HUDBase->InitOverlay(PlayerCharacterController, PlayerCharacterState, AbilitySystemComponent, AttributeSet);
+		}
+	}
 }

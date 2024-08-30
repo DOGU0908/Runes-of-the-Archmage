@@ -7,9 +7,9 @@
 
 UCharacterAttributeSet::UCharacterAttributeSet()
 {
-	InitHealth(100.f);
+	InitHealth(70.f);
 	InitMaxHealth(100.f);
-	InitMana(500.f);
+	InitMana(450.f);
 	InitMaxMana(500.f);
 }
 
