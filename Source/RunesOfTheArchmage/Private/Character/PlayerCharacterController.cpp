@@ -79,7 +79,10 @@ void APlayerCharacterController::TraceCursor()
 	if (!CursorHit.bBlockingHit) return;
 
 	LastHoverActor = CurrentHoverActor;
-	CurrentHoverActor = CursorHit.GetActor();
+	if (IsValid(CursorHit.GetActor()))
+	{
+		CurrentHoverActor = CursorHit.GetActor();
+	}
 
 	if (LastHoverActor == CurrentHoverActor) return;
 

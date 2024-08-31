@@ -31,8 +31,8 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
 	FGameplayEffectContextHandle EffectContextHandle = TargetAbilitySystemComponent->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(this);
 	// gameplay effect spec includes information about the effect, such as magnitude, duration and any other attribute modifiers or gameplay tags
-	// level parameter is used to scale the magnitude of any gameplay effect modifiers
-	const FGameplayEffectSpecHandle EffectSpecHandle = TargetAbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContextHandle);
+	// level parameter is used to scale the magnitude of any gameplay effect modifiers, it can be used to set the value of the curve horizontal axis
+	const FGameplayEffectSpecHandle EffectSpecHandle = TargetAbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContextHandle);
 	const FActiveGameplayEffectHandle ActiveGameplayEffectHandle = TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 
 	if (EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite)
@@ -82,7 +82,7 @@ void AEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		UAbilitySystemComponent* TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-		if (!TargetAbilitySystemComponent)
+		if (!IsValid(TargetAbilitySystemComponent))
 			return;
 
 		TArray<FActiveGameplayEffectHandle> HandlesToRemove;
