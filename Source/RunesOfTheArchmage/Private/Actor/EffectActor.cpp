@@ -87,7 +87,7 @@ void AEffectActor::OnEndOverlap(AActor* TargetActor)
 
 		TArray<FActiveGameplayEffectHandle> HandlesToRemove;
 		
-		for (auto HandlePair: ActiveEffectHandles)
+		for (auto& HandlePair: ActiveEffectHandles)
 		{
 			if (TargetAbilitySystemComponent == HandlePair.Value)
 			{

@@ -19,10 +19,12 @@ public:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+
+protected:
+	virtual void InitAbilityActorInfo() override;
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UStaticMeshComponent> Weapon;
-
-	void InitAbilityActorInfo();
+	
 };

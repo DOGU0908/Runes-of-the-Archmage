@@ -4,6 +4,7 @@
 #include "Character/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "Character/PlayerCharacterController.h"
 #include "Character/PlayerCharacterState.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -68,6 +69,7 @@ void APlayerCharacter::InitAbilityActorInfo()
 	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
 	check(PlayerCharacterState);
 	PlayerCharacterState->GetAbilitySystemComponent()->InitAbilityActorInfo(PlayerCharacterState, this);
+	Cast<UCharacterAbilitySystemComponent>(PlayerCharacterState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
 	AttributeSet = PlayerCharacterState->GetAttributeSet();
 
