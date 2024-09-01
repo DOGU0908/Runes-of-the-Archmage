@@ -9,10 +9,7 @@
 
 class UUserWidgetBase;
 struct FOnAttributeChangeData;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float, NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChanged, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChanged, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChanged, float, NewMaxMana);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
 
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -48,26 +45,21 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnHealthChanged OnHealthChanged;
+	FOnAttributeChanged OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnMaxHealthChanged OnMaxHealthChanged;
+	FOnAttributeChanged OnMaxHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnManaChanged OnManaChanged;
+	FOnAttributeChanged OnManaChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnMaxManaChanged OnMaxManaChanged;
+	FOnAttributeChanged OnMaxManaChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowDelegate MessageWidgetRowDelegate;
 	
 protected:
-	void HealthChanged(const FOnAttributeChangeData& Data) const;
-	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
-	void ManaChanged(const FOnAttributeChangeData& Data) const;
-	void MaxManaChanged(const FOnAttributeChangeData& Data) const;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
