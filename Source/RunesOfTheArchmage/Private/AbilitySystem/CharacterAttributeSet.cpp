@@ -39,6 +39,10 @@ void UCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 	}
+	// PreAttributeChange applies change of the NewValue to the current value, not the base value
+	// i.e the base value is not being clamped
+	// this results in a behavior that the health is still max value even stepping on fire area for a few seconds
+	// -> the health current value was equal to max health but base value was over max health
 }
 
 void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -49,6 +53,16 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	SetEffectProperties(Data, EffectProperties);
 
 	// can use ability system component, actor, character controller ... to implement post gameplay effect application logic
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		// set the attribute base value to clamp between the range
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	}
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
 }
 
 /*
