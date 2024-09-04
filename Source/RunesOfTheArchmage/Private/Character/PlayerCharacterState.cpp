@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 APlayerCharacterState::APlayerCharacterState()
 {
@@ -31,4 +32,15 @@ UAbilitySystemComponent* APlayerCharacterState::GetAbilitySystemComponent() cons
 UAttributeSet* APlayerCharacterState::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+void APlayerCharacterState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerCharacterState, Level);
+}
+
+void APlayerCharacterState::OnRep_Level(int32 OldLevel) const
+{
 }

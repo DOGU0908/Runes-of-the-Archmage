@@ -50,6 +50,14 @@ void APlayerCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 APlayerCharacter::GetCharacterLevel()
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->GetCharacterLevel();
+}
+
 /*
  * Player Controlled Character
  * 1. When Ability System Component is inside the Pawn
@@ -82,4 +90,7 @@ void APlayerCharacter::InitAbilityActorInfo()
 			HUDBase->InitOverlay(PlayerCharacterController, PlayerCharacterState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+
+	// it is allowable to call only in server, client will replicate the attributes
+	InitializeDefaultAttributes();
 }

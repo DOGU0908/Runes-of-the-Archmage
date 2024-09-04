@@ -29,6 +29,11 @@ void AEnemy::UnHighlightActor()
 	GetMesh()->SetRenderCustomDepth(false);
 }
 
+int32 AEnemy::GetCharacterLevel()
+{
+	return Level;
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
