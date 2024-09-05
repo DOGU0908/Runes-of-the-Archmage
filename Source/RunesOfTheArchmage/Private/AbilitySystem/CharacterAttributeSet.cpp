@@ -6,10 +6,24 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "GameplayTagSingleton.h"
 #include "GameFramework/Character.h"
 
 UCharacterAttributeSet::UCharacterAttributeSet()
 {
+	const FGameplayTagSingleton& GameplayTagSingleton = FGameplayTagSingleton::Get();
+
+	// base attributes
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesBaseStrength, GetStrengthAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesBaseMagic, GetMagicAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesBaseResilience, GetResilienceAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesBaseVigor, GetVigorAttribute);
+
+	// secondary attributes
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryArmor, GetArmorAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryCriticalChance, GetCriticalChanceAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryHealthRegeneration, GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryManaRegeneration, GetManaRegenerationAttribute);
 }
 
 void UCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

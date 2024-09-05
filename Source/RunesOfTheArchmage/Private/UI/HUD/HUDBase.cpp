@@ -4,6 +4,7 @@
 #include "UI/HUD/HUDBase.h"
 
 #include "UI/Widget/UserWidgetBase.h"
+#include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
 UOverlayWidgetController* AHUDBase::GetOverlayWidgetController(const FWidgetControllerParams& WidgetControllerParams)
@@ -18,8 +19,21 @@ UOverlayWidgetController* AHUDBase::GetOverlayWidgetController(const FWidgetCont
 	return OverlayWidgetController;
 }
 
+UAttributeMenuWidgetController* AHUDBase::GetAttributeMenuWidgetController(
+	const FWidgetControllerParams& WidgetControllerParams)
+{
+	if (!AttributeMenuWidgetController)
+	{
+		AttributeMenuWidgetController = NewObject<UAttributeMenuWidgetController>(this, AttributeMenuWidgetControllerClass);
+		AttributeMenuWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+		AttributeMenuWidgetController->BindCallbacksToDependencies();
+	}
+
+	return AttributeMenuWidgetController;
+}
+
 void AHUDBase::InitOverlay(APlayerController* PlayerController, APlayerState* PlayerState,
-	UAbilitySystemComponent* AbilitySystemComponent, UAttributeSet* AttributeSet)
+                           UAbilitySystemComponent* AbilitySystemComponent, UAttributeSet* AttributeSet)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized"));
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class uninitialized"));
