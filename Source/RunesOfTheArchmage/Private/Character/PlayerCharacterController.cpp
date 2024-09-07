@@ -3,8 +3,10 @@
 
 #include "Character/PlayerCharacterController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
+#include "AbilitySystem/CharacterAbilitySystemComponent.h"
+#include "Input/CharacterInputComponent.h"
 #include "Interaction/InteractionInterface.h"
 
 APlayerCharacterController::APlayerCharacterController()
@@ -51,9 +53,10 @@ void APlayerCharacterController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	UCharacterInputComponent* CharacterInputComponent = CastChecked<UCharacterInputComponent>(InputComponent);
 
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::Move);
+	CharacterInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::Move);
+	CharacterInputComponent->BindAbilityActions(InputDataAsset, this, &APlayerCharacterController::AbilityInputTagPressed, &APlayerCharacterController::AbilityInputTagReleased, &APlayerCharacterController::AbilityInputTagHeld);
 }
 
 void APlayerCharacterController::Move(const FInputActionValue& InputActionValue)
@@ -76,7 +79,10 @@ void APlayerCharacterController::TraceCursor()
 {
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
-	if (!CursorHit.bBlockingHit) return;
+	if (!CursorHit.bBlockingHit)
+	{
+		return;
+	}
 
 	LastHoverActor = CurrentHoverActor;
 	if (IsValid(CursorHit.GetActor()))
@@ -84,8 +90,57 @@ void APlayerCharacterController::TraceCursor()
 		CurrentHoverActor = CursorHit.GetActor();
 	}
 
-	if (LastHoverActor == CurrentHoverActor) return;
+	if (LastHoverActor == CurrentHoverActor)
+	{
+		return;
+	}
 
-	if (LastHoverActor) LastHoverActor->UnHighlightActor();
-	if (CurrentHoverActor) CurrentHoverActor->HighlightActor();
+	if (LastHoverActor)
+	{
+		LastHoverActor->UnHighlightActor();
+	}
+	if (CurrentHoverActor)
+	{
+		CurrentHoverActor->HighlightActor();
+	}
+}
+
+void APlayerCharacterController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	if (!GetAbilitySystemComponent())
+	{
+		return;
+	}
+
+	GetAbilitySystemComponent()->AbilityPressedByInputTag(InputTag);
+}
+
+void APlayerCharacterController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (!GetAbilitySystemComponent())
+	{
+		return;
+	}
+
+	GetAbilitySystemComponent()->AbilityReleasedByInputTag(InputTag);
+}
+
+void APlayerCharacterController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (!GetAbilitySystemComponent())
+	{
+		return;
+	}
+
+	GetAbilitySystemComponent()->AbilityHeldByInputTag(InputTag);
+}
+
+UCharacterAbilitySystemComponent* APlayerCharacterController::GetAbilitySystemComponent()
+{
+	if (!CharacterAbilitySystemComponent)
+	{
+		CharacterAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+	
+	return CharacterAbilitySystemComponent;
 }

@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "PlayerCharacterController.generated.h"
 
+class UCharacterAbilitySystemComponent;
+class UInputDataAsset;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
@@ -41,4 +44,16 @@ private:
 	void TraceCursor();
 	TScriptInterface<IInteractionInterface> LastHoverActor;
 	TScriptInterface<IInteractionInterface> CurrentHoverActor;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputDataAsset> InputDataAsset;
+	
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY()
+	TObjectPtr<UCharacterAbilitySystemComponent> CharacterAbilitySystemComponent;
+
+	UCharacterAbilitySystemComponent* GetAbilitySystemComponent();
 };

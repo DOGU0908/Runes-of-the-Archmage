@@ -38,6 +38,14 @@ public:
 	FGameplayTag MessageHealthPotionDuration;
 	FGameplayTag MessageManaPotionDuration;
 
+	// inputs
+	FGameplayTag InputTagLMB;
+	FGameplayTag InputTagRMB;
+	FGameplayTag InputTag1;
+	FGameplayTag InputTag2;
+	FGameplayTag InputTag3;
+	FGameplayTag InputTag4;
+
 private:
 	static FGameplayTagSingleton Instance;
 	

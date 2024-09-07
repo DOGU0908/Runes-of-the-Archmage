@@ -30,4 +30,12 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.MessageManaPotion = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message.ManaPotion"));
 	Instance.MessageHealthPotionDuration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message.HealthPotionDuration"));
 	Instance.MessageManaPotionDuration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Message.ManaPotionDuration"));
+	
+	// inputs
+	Instance.InputTagLMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.LMB"));
+	Instance.InputTagRMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.RMB"));
+	Instance.InputTag1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.1"));
+	Instance.InputTag2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.2"));
+	Instance.InputTag3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.3"));
+	Instance.InputTag4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"));
 }

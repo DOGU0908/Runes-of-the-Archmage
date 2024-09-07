@@ -40,6 +40,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	// server init ability actor info
 	InitAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
 void APlayerCharacter::OnRep_PlayerState()
@@ -93,4 +94,10 @@ void APlayerCharacter::InitAbilityActorInfo()
 
 	// it is allowable to call only in server, client will replicate the attributes
 	InitializeDefaultAttributes();
+}
+
+FVector APlayerCharacter::GetCombatSocketLocation()
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(CombatSocketName);
 }

@@ -24,6 +24,8 @@ public:
 
 protected:
 	virtual void InitAbilityActorInfo() override;
+
+	virtual FVector GetCombatSocketLocation() override;
 	
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")

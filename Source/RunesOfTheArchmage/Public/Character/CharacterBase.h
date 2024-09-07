@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UGameplayAbility;
 class UGameplayEffect;
 class UAbilitySystemComponent;
 class UAttributeSet;
@@ -45,5 +46,16 @@ protected:
 
 	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
 	void InitializeDefaultAttributes() const;
+
+	void AddCharacterAbilities() const;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName CombatSocketName;
+
+	virtual FVector GetCombatSocketLocation() override;
+
+private:
+	UPROPERTY(EditAnywhere, Category="Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartAbilities;
 	
 };

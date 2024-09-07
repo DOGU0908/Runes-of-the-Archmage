@@ -4,6 +4,7 @@
 #include "Character/CharacterBase.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/CharacterAbilitySystemComponent.h"
 
 ACharacterBase::ACharacterBase()
 {
@@ -48,4 +49,22 @@ void ACharacterBase::InitializeDefaultAttributes() const
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
 	// set health and mana after setting max health and max mana based on base attributes
 	ApplyEffectToSelf(DefaultBaseVitalAttributes, 1.f);
+}
+
+void ACharacterBase::AddCharacterAbilities() const
+{
+	// only add in server
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = CastChecked<UCharacterAbilitySystemComponent>(AbilitySystemComponent);
+	CharacterAbilitySystemComponent->AddCharacterAbilities(StartAbilities);
+}
+
+FVector ACharacterBase::GetCombatSocketLocation()
+{
+	check(GetMesh());
+	return GetMesh()->GetSocketLocation(CombatSocketName);
 }
