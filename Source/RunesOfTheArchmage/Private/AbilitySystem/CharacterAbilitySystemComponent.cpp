@@ -76,7 +76,7 @@ void UCharacterAbilitySystemComponent::AbilityReleasedByInputTag(const FGameplay
 	}
 }
 
-void UCharacterAbilitySystemComponent::OnEffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
+void UCharacterAbilitySystemComponent::OnEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                                        const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle) const
 {
 	FGameplayTagContainer GameplayTagContainer;

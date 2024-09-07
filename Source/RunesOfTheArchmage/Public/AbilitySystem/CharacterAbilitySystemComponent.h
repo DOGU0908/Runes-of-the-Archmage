@@ -28,6 +28,8 @@ public:
 	void AbilityReleasedByInputTag(const FGameplayTag& InputTag);
 	
 protected:
+	// replicate to client
+	UFUNCTION(Client, Reliable)
 	void OnEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle) const;
 	
 };
