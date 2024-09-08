@@ -46,6 +46,9 @@ public:
 	FGameplayTag InputTag3;
 	FGameplayTag InputTag4;
 
+	// event montages
+	FGameplayTag EventMontageAttack01;
+
 private:
 	static FGameplayTagSingleton Instance;
 	

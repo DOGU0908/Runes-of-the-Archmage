@@ -11,8 +11,11 @@ void UProjectileGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandl
                                                  const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
 
-	if (!HasAuthority(&ActivationInfo))
+void UProjectileGameplayAbility::SpawnProjectile(const FVector& TargetLocation)
+{
+	if (!GetAvatarActorFromActorInfo()->HasAuthority())
 	{
 		return;
 	}
@@ -20,9 +23,14 @@ void UProjectileGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandl
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SpawnLocation = CombatInterface->GetCombatSocketLocation();
+		
+		FRotator Rotation = (TargetLocation - SpawnLocation).Rotation();
+		Rotation.Pitch = 0.f;
+		
 		FTransform SpawnTransform;
-		// TODO: set projectile rotation
 		SpawnTransform.SetLocation(SpawnLocation);
+		SpawnTransform.SetRotation(Rotation.Quaternion());
+		
 		AProjectile* Projectile = GetWorld()->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
 		// TODO: give projectile gameplay effect spec
