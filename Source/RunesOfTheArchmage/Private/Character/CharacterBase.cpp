@@ -5,11 +5,14 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 
 ACharacterBase::ACharacterBase()
 {
  	PrimaryActorTick.bCanEverTick = false;
-	
+
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const

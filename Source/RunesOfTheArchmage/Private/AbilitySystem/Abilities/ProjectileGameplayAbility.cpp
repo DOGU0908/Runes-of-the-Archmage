@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/Abilities/ProjectileGameplayAbility.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Actor/Projectile.h"
 #include "Combat/CombatInterface.h"
 
@@ -33,7 +35,10 @@ void UProjectileGameplayAbility::SpawnProjectile(const FVector& TargetLocation)
 		
 		AProjectile* Projectile = GetWorld()->SpawnActorDeferred<AProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-		// TODO: give projectile gameplay effect spec
+		const UAbilitySystemComponent* SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+
+		const FGameplayEffectContextHandle GameplayEffectSpecHandle = SourceAbilitySystemComponent->MakeEffectContext();
+		Projectile->DamageEffectSpecHandle = SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), GameplayEffectSpecHandle);
 		
 		Projectile->FinishSpawning(SpawnTransform);
 	}
