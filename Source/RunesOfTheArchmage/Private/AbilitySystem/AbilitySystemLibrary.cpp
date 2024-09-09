@@ -3,7 +3,10 @@
 
 #include "AbilitySystem/AbilitySystemLibrary.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/PlayerCharacterState.h"
+#include "Game/RunesOfTheArchmageGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/HUDBase.h"
 #include "UI/WidgetController/WidgetControllerBase.h"
@@ -40,4 +43,34 @@ UAttributeMenuWidgetController* UAbilitySystemLibrary::GetAttributeMenuWidgetCon
 	}
 
 	return nullptr;
+}
+
+void UAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* AbilitySystemComponent)
+{
+	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
+
+	if (!RunesOfTheArchmageGameMode)
+	{
+		return;
+	}
+
+	AActor* AvatarActor = AbilitySystemComponent->GetAvatarActor();
+
+	UCharacterClassInfo* CharacterClassInfo = RunesOfTheArchmageGameMode->CharacterClassInfo;
+	FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+
+	FGameplayEffectContextHandle BaseAttributesContextHandle = AbilitySystemComponent->MakeEffectContext();
+	BaseAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle BaseAttributesSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(ClassDefaultInfo.BaseAttributes, Level, BaseAttributesContextHandle);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*BaseAttributesSpecHandle.Data.Get());
+
+	FGameplayEffectContextHandle SecondaryAttributesContextHandle = AbilitySystemComponent->MakeEffectContext();
+	SecondaryAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle SecondaryAttributesSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes, Level, SecondaryAttributesContextHandle);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SecondaryAttributesSpecHandle.Data.Get());
+
+	FGameplayEffectContextHandle BaseAttributesVitalContextHandle = AbilitySystemComponent->MakeEffectContext();
+	BaseAttributesVitalContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle BaseAttributesVitalSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterClassInfo->BaseVitalAttributes, Level, BaseAttributesVitalContextHandle);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*BaseAttributesVitalSpecHandle.Data.Get());
 }

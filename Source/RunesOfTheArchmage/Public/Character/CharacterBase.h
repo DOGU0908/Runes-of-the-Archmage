@@ -34,18 +34,8 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	virtual void InitAbilityActorInfo();
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
-	TSubclassOf<UGameplayEffect> DefaultBaseAttributes;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
-	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
-	TSubclassOf<UGameplayEffect> DefaultBaseVitalAttributes;
-
-	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
-	void InitializeDefaultAttributes() const;
+	
+	virtual void InitializeDefaultAttributes() const;
 
 	void AddCharacterAbilities() const;
 

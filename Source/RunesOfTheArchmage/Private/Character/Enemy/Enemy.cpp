@@ -3,6 +3,7 @@
 
 #include "Character/Enemy/Enemy.h"
 
+#include "AbilitySystem/AbilitySystemLibrary.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 #include "Components/WidgetComponent.h"
@@ -76,7 +77,11 @@ void AEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
-
-	// TODO: set default attributes for enemy (currently using player gameplay effect)
+	
 	InitializeDefaultAttributes();
+}
+
+void AEnemy::InitializeDefaultAttributes() const
+{
+	UAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }

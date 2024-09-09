@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/CharacterBase.h"
 #include "Interaction/InteractionInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Enemy.generated.h"
 
+enum class ECharacterClass : uint8;
 class UWidgetComponent;
 /**
  * 
@@ -39,7 +41,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
 	int32 Level = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Melee;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
+
+	virtual void InitializeDefaultAttributes() const override;
 	
 };

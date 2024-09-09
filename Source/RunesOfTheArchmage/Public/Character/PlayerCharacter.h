@@ -26,7 +26,19 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 
 	virtual FVector GetCombatSocketLocation() override;
-	
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
+	TSubclassOf<UGameplayEffect> DefaultBaseAttributes;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
+	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
+	TSubclassOf<UGameplayEffect> DefaultBaseVitalAttributes;
+
+	virtual void InitializeDefaultAttributes() const override;
+	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
+
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UStaticMeshComponent> Weapon;

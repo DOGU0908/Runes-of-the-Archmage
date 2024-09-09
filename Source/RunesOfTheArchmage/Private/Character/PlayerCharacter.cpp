@@ -101,3 +101,22 @@ FVector APlayerCharacter::GetCombatSocketLocation()
 	check(Weapon);
 	return Weapon->GetSocketLocation(CombatSocketName);
 }
+
+void APlayerCharacter::InitializeDefaultAttributes() const
+{
+	ApplyEffectToSelf(DefaultBaseAttributes, 1.f);
+	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
+	// set health and mana after setting max health and max mana based on base attributes
+	ApplyEffectToSelf(DefaultBaseVitalAttributes, 1.f);
+}
+
+void APlayerCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const
+{
+	check(IsValid(GetAbilitySystemComponent()));
+	check(GameplayEffectClass);
+	
+	FGameplayEffectContextHandle GameplayEffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	GameplayEffectContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, GameplayEffectContextHandle);
+	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpecHandle.Data.Get());
+}
