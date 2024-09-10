@@ -8,6 +8,8 @@
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "Input/CharacterInputComponent.h"
 #include "Interaction/InteractionInterface.h"
+#include "GameFramework/Character.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 APlayerCharacterController::APlayerCharacterController()
 {
@@ -20,6 +22,20 @@ void APlayerCharacterController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	TraceCursor();
+}
+
+void APlayerCharacterController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageTextComponent = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageTextComponent->RegisterComponent();
+
+		DamageTextComponent->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+
+		DamageTextComponent->SetDamageText(DamageAmount);
+	}
 }
 
 void APlayerCharacterController::BeginPlay()

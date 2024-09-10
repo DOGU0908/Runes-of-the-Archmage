@@ -59,6 +59,22 @@ int32 APlayerCharacter::GetCharacterLevel()
 	return PlayerCharacterState->GetCharacterLevel();
 }
 
+void APlayerCharacter::Die()
+{
+	// TODO: check player die feature after implementing enemy attack
+	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	Super::Die();
+}
+
+void APlayerCharacter::MulticastHandleDeath_Implementation()
+{
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetEnableGravity(true);
+	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	
+	Super::MulticastHandleDeath_Implementation();
+}
+
 /*
  * Player Controlled Character
  * 1. When Ability System Component is inside the Pawn

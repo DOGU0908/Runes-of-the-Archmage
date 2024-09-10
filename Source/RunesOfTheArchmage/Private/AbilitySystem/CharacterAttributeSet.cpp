@@ -7,7 +7,10 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagSingleton.h"
+#include "Character/PlayerCharacterController.h"
+#include "Combat/CombatInterface.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 UCharacterAttributeSet::UCharacterAttributeSet()
 {
@@ -86,6 +89,35 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			if (NewHealth > 0.f)
+			{
+				// activate ability if the target has the specified tag
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FGameplayTagSingleton::Get().EffectsHitReact);
+				EffectProperties.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+			}
+			else
+			{
+				if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor))
+				{
+					CombatInterface->Die();
+				}
+			}
+
+			ShowFloatingText(EffectProperties, LocalIncomingDamage);
+		}
 	}
 }
 
@@ -202,5 +234,16 @@ void UCharacterAttributeSet::SetEffectProperties(const FGameplayEffectModCallbac
 		EffectProperties.TargetCharacter = Cast<ACharacter>(EffectProperties.TargetAvatarActor);
 
 		EffectProperties.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(EffectProperties.TargetAvatarActor);
+	}
+}
+
+void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectProperties, const float Damage) const
+{
+	if (EffectProperties.SourceCharacter != EffectProperties.TargetCharacter)
+	{
+		if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(UGameplayStatics::GetPlayerController(EffectProperties.SourceCharacter, 0)))
+		{
+			PlayerCharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter);
+		}
 	}
 }

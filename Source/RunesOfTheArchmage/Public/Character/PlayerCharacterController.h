@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerCharacterController.generated.h"
 
+class UDamageTextComponent;
 class UCharacterAbilitySystemComponent;
 class UInputDataAsset;
 class UInputMappingContext;
@@ -26,6 +27,9 @@ public:
 	APlayerCharacterController();
 
 	virtual void PlayerTick(float DeltaTime) override;
+
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,4 +60,7 @@ private:
 	TObjectPtr<UCharacterAbilitySystemComponent> CharacterAbilitySystemComponent;
 
 	UCharacterAbilitySystemComponent* GetAbilitySystemComponent();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

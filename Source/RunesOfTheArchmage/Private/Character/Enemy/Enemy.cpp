@@ -3,10 +3,12 @@
 
 #include "Character/Enemy/Enemy.h"
 
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/AbilitySystemLibrary.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
 #include "UI/Widget/UserWidgetBase.h"
 
@@ -41,11 +43,34 @@ int32 AEnemy::GetCharacterLevel()
 	return Level;
 }
 
+void AEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+
+	// no movement while hit react
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+}
+
+void AEnemy::Die()
+{
+	SetLifeSpan(LifeSpan);
+	Super::Die();
+}
+
+void AEnemy::MulticastHandleDeath_Implementation()
+{
+	Super::MulticastHandleDeath_Implementation();
+
+	HealthBar->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	InitAbilityActorInfo();
+	UAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	if (UUserWidgetBase* Widget = Cast<UUserWidgetBase>(HealthBar->GetUserWidgetObject()))
 	{
@@ -67,6 +92,8 @@ void AEnemy::BeginPlay()
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
 			}
 		);
+
+		AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTagSingleton::Get().EffectsHitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AEnemy::HitReactTagChanged);
 
 		OnHealthChanged.Broadcast(CharacterAttributeSet->GetHealth());
 		OnMaxHealthChanged.Broadcast(CharacterAttributeSet->GetMaxHealth());

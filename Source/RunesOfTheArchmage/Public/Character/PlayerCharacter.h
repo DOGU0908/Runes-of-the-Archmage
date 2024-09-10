@@ -22,6 +22,10 @@ public:
 
 	virtual int32 GetCharacterLevel() override;
 
+	virtual void Die() override;
+
+	virtual void MulticastHandleDeath_Implementation() override;
+
 protected:
 	virtual void InitAbilityActorInfo() override;
 

@@ -49,6 +49,10 @@ public:
 	// event montages
 	FGameplayTag EventMontageAttack01;
 
+	// damage
+	FGameplayTag Damage;
+	FGameplayTag EffectsHitReact;
+
 private:
 	static FGameplayTagSingleton Instance;
 	

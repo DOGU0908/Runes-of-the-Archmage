@@ -173,7 +173,16 @@ public:
 	UFUNCTION()
 	void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const;
 
+	/*
+	 * Temp Attributes - not replicated
+	 */
+
+	UPROPERTY(BlueprintReadOnly, Category="Temp Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, IncomingDamage);
+
 private:
 	static void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties);
-	
+
+	void ShowFloatingText(const FEffectProperties& EffectProperties, const float Damage) const;
 };

@@ -74,3 +74,21 @@ void UAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldObje
 	const FGameplayEffectSpecHandle BaseAttributesVitalSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterClassInfo->BaseVitalAttributes, Level, BaseAttributesVitalContextHandle);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*BaseAttributesVitalSpecHandle.Data.Get());
 }
+
+void UAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldObject,
+	UAbilitySystemComponent* AbilitySystemComponent)
+{
+	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
+
+	if (!RunesOfTheArchmageGameMode)
+	{
+		return;
+	}
+	
+	UCharacterClassInfo* CharacterClassInfo = RunesOfTheArchmageGameMode->CharacterClassInfo;
+	for (auto CommonAbility: CharacterClassInfo->CommonAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(CommonAbility, 1);
+		AbilitySystemComponent->GiveAbility(AbilitySpec);
+	}
+}

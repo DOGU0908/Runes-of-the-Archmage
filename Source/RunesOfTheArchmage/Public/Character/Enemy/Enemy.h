@@ -33,6 +33,21 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChanged OnMaxHealthChanged;
 
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(BlueprintReadOnly, Category="Hit")
+	bool bHitReacting = false;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
+	float BaseWalkSpeed = 250.f;
+
+	virtual void Die() override;
+
+	virtual void MulticastHandleDeath_Implementation() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
+	float LifeSpan = 5.f;
+	
 protected:
 	virtual void BeginPlay() override;
 	
