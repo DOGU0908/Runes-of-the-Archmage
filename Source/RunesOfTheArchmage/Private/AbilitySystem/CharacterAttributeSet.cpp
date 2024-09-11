@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagSingleton.h"
+#include "AbilitySystem/AbilitySystemLibrary.h"
 #include "Character/PlayerCharacterController.h"
 #include "Combat/CombatInterface.h"
 #include "GameFramework/Character.h"
@@ -116,7 +117,7 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 				}
 			}
 
-			ShowFloatingText(EffectProperties, LocalIncomingDamage);
+			ShowFloatingText(EffectProperties, LocalIncomingDamage, UAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle));
 		}
 	}
 }
@@ -237,13 +238,13 @@ void UCharacterAttributeSet::SetEffectProperties(const FGameplayEffectModCallbac
 	}
 }
 
-void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectProperties, const float Damage) const
+void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectProperties, const float Damage, const bool bIsCriticalHit) const
 {
 	if (EffectProperties.SourceCharacter != EffectProperties.TargetCharacter)
 	{
 		if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(UGameplayStatics::GetPlayerController(EffectProperties.SourceCharacter, 0)))
 		{
-			PlayerCharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter);
+			PlayerCharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter, bIsCriticalHit);
 		}
 	}
 }

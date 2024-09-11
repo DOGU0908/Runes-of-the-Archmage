@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystemLibrary.generated.h"
 
+struct FGameplayEffectContextHandle;
 class UAbilitySystemComponent;
 enum class ECharacterClass : uint8;
 class UAttributeMenuWidgetController;
@@ -30,5 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
 	static void GiveStartupAbilities(const UObject* WorldObject, UAbilitySystemComponent* AbilitySystemComponent);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
 	
 };

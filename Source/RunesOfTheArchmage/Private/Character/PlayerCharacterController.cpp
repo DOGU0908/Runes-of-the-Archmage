@@ -24,7 +24,7 @@ void APlayerCharacterController::PlayerTick(float DeltaTime)
 	TraceCursor();
 }
 
-void APlayerCharacterController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void APlayerCharacterController::ShowDamageNumber_Implementation(const float DamageAmount, ACharacter* TargetCharacter, const bool bIsCriticalHit)
 {
 	if (IsValid(TargetCharacter) && DamageTextComponentClass)
 	{
@@ -34,7 +34,7 @@ void APlayerCharacterController::ShowDamageNumber_Implementation(float DamageAmo
 		DamageTextComponent->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		DamageTextComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 
-		DamageTextComponent->SetDamageText(DamageAmount);
+		DamageTextComponent->SetDamageText(DamageAmount, bIsCriticalHit);
 	}
 }
 

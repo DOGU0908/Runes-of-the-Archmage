@@ -16,6 +16,6 @@ class RUNESOFTHEARCHMAGE_API UDamageTextComponent : public UWidgetComponent
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetDamageText(float Damage);
+	void SetDamageText(const float Damage, const bool bIsCriticalHit);
 	
 };

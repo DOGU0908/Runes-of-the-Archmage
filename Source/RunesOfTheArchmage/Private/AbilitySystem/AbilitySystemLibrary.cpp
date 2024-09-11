@@ -4,6 +4,7 @@
 #include "AbilitySystem/AbilitySystemLibrary.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/PlayerCharacterState.h"
 #include "Game/RunesOfTheArchmageGameModeBase.h"
@@ -91,4 +92,14 @@ void UAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldObject,
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(CommonAbility, 1);
 		AbilitySystemComponent->GiveAbility(AbilitySpec);
 	}
+}
+
+bool UAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		return EffectContext->IsCriticalHit();
+	}
+
+	return false;
 }

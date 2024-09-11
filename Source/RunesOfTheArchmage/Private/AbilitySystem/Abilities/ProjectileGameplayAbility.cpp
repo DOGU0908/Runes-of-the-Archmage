@@ -38,8 +38,8 @@ void UProjectileGameplayAbility::SpawnProjectile(const FVector& TargetLocation)
 
 		const UAbilitySystemComponent* SourceAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 
-		const FGameplayEffectContextHandle GameplayEffectSpecHandle = SourceAbilitySystemComponent->MakeEffectContext();
-		const FGameplayEffectSpecHandle SpecHandle = SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), GameplayEffectSpecHandle);
+		const FGameplayEffectContextHandle GameplayEffectContextHandle = SourceAbilitySystemComponent->MakeEffectContext();
+		const FGameplayEffectSpecHandle SpecHandle = SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), GameplayEffectContextHandle);
 
 		const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, FGameplayTagSingleton::Get().Damage, ScaledDamage);

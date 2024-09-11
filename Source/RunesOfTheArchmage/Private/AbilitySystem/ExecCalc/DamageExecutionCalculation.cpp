@@ -4,6 +4,7 @@
 #include "AbilitySystem/ExecCalc/DamageExecutionCalculation.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilityTypes.h"
 #include "GameplayTagSingleton.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 
@@ -37,6 +38,7 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FGameplayEffectContextBase* GameplayEffectContext = static_cast<FGameplayEffectContextBase*>(Spec.GetContext().Get());
 
 	FAggregatorEvaluateParameters AggregatorEvaluateParameters;
 	AggregatorEvaluateParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
@@ -55,6 +57,7 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	SourceCriticalChance = FMath::Max<float>(0.f, SourceCriticalChance);
 
 	const bool bCriticalHit = FMath::RandRange(1, 100) < SourceCriticalChance;
+	GameplayEffectContext->SetIsCriticalHit(bCriticalHit);
 	Damage *= bCriticalHit ? 3.f : 1.f;
 
 	const FGameplayModifierEvaluatedData EvaluatedData(UCharacterAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
