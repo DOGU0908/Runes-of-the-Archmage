@@ -13,14 +13,24 @@ struct FDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalChance);
 	
+	DECLARE_ATTRIBUTE_CAPTUREDEF(FireResistance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(IceResistance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(ThunderResistance);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(PhysicalResistance);
+	
 	FDamageStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, Armor, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, CriticalChance, Source, false);
+		
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, FireResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, IceResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, ThunderResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, PhysicalResistance, Target, false);
 	}
 };
 
-static const FDamageStatics& DamageStatics()
+static const FDamageStatics& GetDamageStatics()
 {
 	static FDamageStatics DamageStaticsObject;
 	
@@ -29,14 +39,30 @@ static const FDamageStatics& DamageStatics()
 
 UDamageExecutionCalculation::UDamageExecutionCalculation()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalChanceDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().ArmorDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().CriticalChanceDef);
+	
+	RelevantAttributesToCapture.Add(GetDamageStatics().FireResistanceDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().IceResistanceDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().ThunderResistanceDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().PhysicalResistanceDef);
 }
 
 void UDamageExecutionCalculation::Execute_Implementation(
 	const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
+	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefs;
+	const FGameplayTagSingleton& Tags = FGameplayTagSingleton::Get();
+		
+	TagsToCaptureDefs.Add(Tags.AttributesSecondaryArmor, GetDamageStatics().ArmorDef);
+	TagsToCaptureDefs.Add(Tags.AttributesSecondaryCriticalChance, GetDamageStatics().CriticalChanceDef);
+
+	TagsToCaptureDefs.Add(Tags.AttributesResistancesFire, GetDamageStatics().FireResistanceDef);
+	TagsToCaptureDefs.Add(Tags.AttributesResistancesIce, GetDamageStatics().IceResistanceDef);
+	TagsToCaptureDefs.Add(Tags.AttributesResistancesThunder, GetDamageStatics().ThunderResistanceDef);
+	TagsToCaptureDefs.Add(Tags.AttributesResistancesPhysical, GetDamageStatics().PhysicalResistanceDef);
+	
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FGameplayEffectContextBase* GameplayEffectContext = static_cast<FGameplayEffectContextBase*>(Spec.GetContext().Get());
 
@@ -44,16 +70,28 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	AggregatorEvaluateParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	AggregatorEvaluateParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
-	float Damage = Spec.GetSetByCallerMagnitude(FGameplayTagSingleton::Get().Damage);
+	float Damage = 0.f;
+	for (const auto& Pair: FGameplayTagSingleton::Get().DamageTypesToResistances)
+	{
+		checkf(TagsToCaptureDefs.Contains(Pair.Value), TEXT("TagsToCaptureDefs does not contain the tag"));
+		
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key);
+
+		float Resistance = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(TagsToCaptureDefs[Pair.Value], AggregatorEvaluateParameters, Resistance);
+		Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
+		
+		Damage += DamageTypeValue * (1.f - Resistance / 100.f);
+	}
 
 	float TargetArmor = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, AggregatorEvaluateParameters, TargetArmor);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().ArmorDef, AggregatorEvaluateParameters, TargetArmor);
 	TargetArmor = FMath::Max<float>(0.f, TargetArmor);
 
 	Damage = FMath::Max<float>(Damage - TargetArmor * 0.1f, 0.f);
 
 	float SourceCriticalChance = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalChanceDef, AggregatorEvaluateParameters, SourceCriticalChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetDamageStatics().CriticalChanceDef, AggregatorEvaluateParameters, SourceCriticalChance);
 	SourceCriticalChance = FMath::Max<float>(0.f, SourceCriticalChance);
 
 	const bool bCriticalHit = FMath::RandRange(1, 100) < SourceCriticalChance;

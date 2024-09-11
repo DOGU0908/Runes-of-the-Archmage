@@ -49,9 +49,22 @@ public:
 	// event montages
 	FGameplayTag EventMontageAttack01;
 
-	// damage
+	// combats
 	FGameplayTag Damage;
 	FGameplayTag EffectsHitReact;
+
+	// damage types
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
+	FGameplayTag DamageTypeFire;
+	FGameplayTag DamageTypeIce;
+	FGameplayTag DamageTypeThunder;
+	FGameplayTag DamageTypePhysical;
+
+	// resistances
+	FGameplayTag AttributesResistancesFire;
+	FGameplayTag AttributesResistancesIce;
+	FGameplayTag AttributesResistancesThunder;
+	FGameplayTag AttributesResistancesPhysical;
 
 private:
 	static FGameplayTagSingleton Instance;

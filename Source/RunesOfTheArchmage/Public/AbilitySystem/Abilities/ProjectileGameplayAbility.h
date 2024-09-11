@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/GameplayAbilityBase.h"
+#include "AbilitySystem/Abilities/GameplayAbilityDamage.h"
 #include "ProjectileGameplayAbility.generated.h"
 
 class AProjectile;
@@ -11,7 +11,7 @@ class AProjectile;
  * 
  */
 UCLASS()
-class RUNESOFTHEARCHMAGE_API UProjectileGameplayAbility : public UGameplayAbilityBase
+class RUNESOFTHEARCHMAGE_API UProjectileGameplayAbility : public UGameplayAbilityDamage
 {
 	GENERATED_BODY()
 
@@ -23,8 +23,5 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(const FVector& TargetLocation);
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 };

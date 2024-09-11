@@ -42,7 +42,25 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	// event montages
 	Instance.EventMontageAttack01 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack01"));
 
-	// damages
+	// combats
 	Instance.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"));
 	Instance.EffectsHitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"));
+
+	// damage types
+	Instance.DamageTypeFire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Type.Fire"));
+	Instance.DamageTypeIce = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Type.Ice"));
+	Instance.DamageTypeThunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Type.Thunder"));
+	Instance.DamageTypePhysical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage.Type.Physical"));
+
+	// resistances
+	Instance.AttributesResistancesFire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Fire"));
+	Instance.AttributesResistancesIce = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Ice"));
+	Instance.AttributesResistancesThunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Thunder"));
+	Instance.AttributesResistancesPhysical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Resistance.Physical"));
+
+	// map of damage type to resistances
+	Instance.DamageTypesToResistances.Add(Instance.DamageTypeFire, Instance.AttributesResistancesFire);
+	Instance.DamageTypesToResistances.Add(Instance.DamageTypeIce, Instance.AttributesResistancesIce);
+	Instance.DamageTypesToResistances.Add(Instance.DamageTypeThunder, Instance.AttributesResistancesThunder);
+	Instance.DamageTypesToResistances.Add(Instance.DamageTypePhysical, Instance.AttributesResistancesPhysical);
 }

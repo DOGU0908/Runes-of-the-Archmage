@@ -174,6 +174,42 @@ public:
 	void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const;
 
 	/*
+	 * resistances
+	 */
+
+	// fire resistance
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_FireResistance, Category="Resistance Attributes")
+	FGameplayAttributeData FireResistance;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, FireResistance);
+
+	UFUNCTION()
+	void OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance) const;
+
+	// ice resistance
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_IceResistance, Category="Resistance Attributes")
+	FGameplayAttributeData IceResistance;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, IceResistance);
+
+	UFUNCTION()
+	void OnRep_IceResistance(const FGameplayAttributeData& OldIceResistance) const;
+
+	// thunder resistance
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ThunderResistance, Category="Resistance Attributes")
+	FGameplayAttributeData ThunderResistance;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, ThunderResistance);
+
+	UFUNCTION()
+	void OnRep_ThunderResistance(const FGameplayAttributeData& OldThunderResistance) const;
+
+	// physical resistance
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PhysicalResistance, Category="Resistance Attributes")
+	FGameplayAttributeData PhysicalResistance;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, PhysicalResistance);
+
+	UFUNCTION()
+	void OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const;
+	
+	/*
 	 * Temp Attributes - not replicated
 	 */
 

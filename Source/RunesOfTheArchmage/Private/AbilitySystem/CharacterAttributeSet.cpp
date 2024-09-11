@@ -28,6 +28,12 @@ UCharacterAttributeSet::UCharacterAttributeSet()
 	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryCriticalChance, GetCriticalChanceAttribute);
 	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryHealthRegeneration, GetHealthRegenerationAttribute);
 	TagsToAttributes.Add(GameplayTagSingleton.AttributesSecondaryManaRegeneration, GetManaRegenerationAttribute);
+
+	// resistances
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesResistancesFire, GetFireResistanceAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesResistancesIce, GetIceResistanceAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesResistancesThunder, GetThunderResistanceAttribute);
+	TagsToAttributes.Add(GameplayTagSingleton.AttributesResistancesPhysical, GetPhysicalResistanceAttribute);
 }
 
 void UCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -52,6 +58,12 @@ void UCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, CriticalChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
+
+	// resistance attributes
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, FireResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, IceResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, ThunderResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
 }
 
 void UCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -195,6 +207,26 @@ void UCharacterAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeDa
 void UCharacterAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, ManaRegeneration, OldManaRegeneration);
+}
+
+void UCharacterAttributeSet::OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, FireResistance, OldFireResistance);
+}
+
+void UCharacterAttributeSet::OnRep_IceResistance(const FGameplayAttributeData& OldIceResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, IceResistance, OldIceResistance);
+}
+
+void UCharacterAttributeSet::OnRep_ThunderResistance(const FGameplayAttributeData& OldThunderResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, ThunderResistance, OldThunderResistance);
+}
+
+void UCharacterAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, PhysicalResistance, OldPhysicalResistance);
 }
 
 void UCharacterAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties)
