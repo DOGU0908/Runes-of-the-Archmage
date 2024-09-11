@@ -104,6 +104,7 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
 	}
 
+	// temp attribute - not replicated
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
@@ -274,7 +275,9 @@ void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectPro
 {
 	if (EffectProperties.SourceCharacter != EffectProperties.TargetCharacter)
 	{
-		if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(UGameplayStatics::GetPlayerController(EffectProperties.SourceCharacter, 0)))
+		// this function is called only inside the server
+		// getting player controller by index 0 will result in only first player (listen server, or 1st client) inside the server
+		if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(EffectProperties.SourceCharacter->Controller))
 		{
 			PlayerCharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter, bIsCriticalHit);
 		}

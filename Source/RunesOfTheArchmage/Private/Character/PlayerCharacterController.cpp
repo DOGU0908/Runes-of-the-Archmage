@@ -26,7 +26,8 @@ void APlayerCharacterController::PlayerTick(float DeltaTime)
 
 void APlayerCharacterController::ShowDamageNumber_Implementation(const float DamageAmount, ACharacter* TargetCharacter, const bool bIsCriticalHit)
 {
-	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	// IsLocalController will verify that servers do not show damage text of other clients
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
 	{
 		UDamageTextComponent* DamageTextComponent = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
 		DamageTextComponent->RegisterComponent();
