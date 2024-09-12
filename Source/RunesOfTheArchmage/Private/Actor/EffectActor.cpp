@@ -21,6 +21,12 @@ void AEffectActor::BeginPlay()
 
 void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
+	// apply effect to target may be called directly on the blueprint, so check effect application on target must also be called here
+	if (!CheckEffectApplicationOnTarget(TargetActor))
+	{
+		return;
+	}
+	
 	UAbilitySystemComponent* TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetAbilitySystemComponent)
 		return;
@@ -42,10 +48,19 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
 		
 		ActiveEffectHandles.Add(ActiveGameplayEffectHandle, TargetAbilitySystemComponent);
 	}
+	else if (bDestroyOnEffectApplication)
+	{
+		Destroy();
+	}
 }
 
 void AEffectActor::OnOverlap(AActor* TargetActor)
 {
+	if (!CheckEffectApplicationOnTarget(TargetActor))
+	{
+		return;
+	}
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
@@ -64,6 +79,11 @@ void AEffectActor::OnOverlap(AActor* TargetActor)
 
 void AEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	if (!CheckEffectApplicationOnTarget(TargetActor))
+	{
+		return;
+	}
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
@@ -101,4 +121,17 @@ void AEffectActor::OnEndOverlap(AActor* TargetActor)
 			ActiveEffectHandles.FindAndRemoveChecked(Handle);
 		}
 	}
+}
+
+// do not implement this performance heavy
+bool AEffectActor::CheckEffectApplicationOnTarget(const AActor* TargetActor) const
+{
+	if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies)
+	{
+		return false;
+	}
+
+	// can add when creating an effect that not applies to players - not in this project
+
+	return true;
 }

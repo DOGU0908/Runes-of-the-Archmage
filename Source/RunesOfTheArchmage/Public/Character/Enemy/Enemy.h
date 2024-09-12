@@ -9,6 +9,8 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Enemy.generated.h"
 
+class AEnemyAIController;
+class UBehaviorTree;
 enum class ECharacterClass : uint8;
 class UWidgetComponent;
 /**
@@ -21,6 +23,7 @@ class RUNESOFTHEARCHMAGE_API AEnemy : public ACharacterBase, public IInteraction
 
 public:
 	AEnemy();
+	virtual void PossessedBy(AController* NewController) override;
 	
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
@@ -63,5 +66,11 @@ protected:
 	TObjectPtr<UWidgetComponent> HealthBar;
 
 	virtual void InitializeDefaultAttributes() const override;
+
+	UPROPERTY(EditAnywhere, Category="AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<AEnemyAIController> AIController;
 	
 };

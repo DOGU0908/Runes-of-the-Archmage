@@ -7,6 +7,9 @@
 #include "AbilitySystem/AbilitySystemLibrary.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
+#include "AI/EnemyAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
@@ -21,10 +24,33 @@ AEnemy::AEnemy()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	
 	AttributeSet = CreateDefaultSubobject<UCharacterAttributeSet>("AttributeSet");
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void AEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// only set AI controller on the server
+	// clients get replicated data
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
+	AIController = Cast<AEnemyAIController>(NewController);
+	AIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	AIController->RunBehaviorTree(BehaviorTree);
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("IsRanged"), CharacterClass != ECharacterClass::Melee);
 }
 
 void AEnemy::HighlightActor()
@@ -49,6 +75,7 @@ void AEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 
 	// no movement while hit react
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AEnemy::Die()
