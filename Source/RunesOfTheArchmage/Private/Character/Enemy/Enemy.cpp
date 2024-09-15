@@ -75,7 +75,10 @@ void AEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 
 	// no movement while hit react
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
-	AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	if (AIController && AIController->GetBlackboardComponent())
+	{
+		AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	}
 }
 
 void AEnemy::Die()
@@ -91,6 +94,16 @@ void AEnemy::MulticastHandleDeath_Implementation()
 	HealthBar->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 }
 
+void AEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AEnemy::GetCombatTarget_Implementation()
+{
+	return CombatTarget;
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -100,7 +113,7 @@ void AEnemy::BeginPlay()
 	InitAbilityActorInfo();
 	if (HasAuthority())
 	{
-		UAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+		UAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);
 	}
 
 	if (UUserWidgetBase* Widget = Cast<UUserWidgetBase>(HealthBar->GetUserWidgetObject()))

@@ -7,6 +7,8 @@
 #include "AbilityTypes.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/PlayerCharacterState.h"
+#include "Combat/CombatInterface.h"
+#include "Engine/OverlapResult.h"
 #include "Game/RunesOfTheArchmageGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/HUDBase.h"
@@ -77,7 +79,7 @@ void UAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldObje
 }
 
 void UAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldObject,
-	UAbilitySystemComponent* AbilitySystemComponent)
+	UAbilitySystemComponent* AbilitySystemComponent, ECharacterClass CharacterClass)
 {
 	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
 
@@ -92,6 +94,14 @@ void UAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldObject,
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(CommonAbility, 1);
 		AbilitySystemComponent->GiveAbility(AbilitySpec);
 	}
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(AbilitySystemComponent->GetAvatarActor()))
+	{
+		for (auto StartupAbility: CharacterClassInfo->GetClassDefaultInfo(CharacterClass).StartupAbilities)
+		{
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(StartupAbility, CombatInterface->GetCharacterLevel());
+			AbilitySystemComponent->GiveAbility(AbilitySpec);
+		}
+	}
 }
 
 bool UAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
@@ -102,4 +112,33 @@ bool UAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& Ef
 	}
 
 	return false;
+}
+
+void UAbilitySystemLibrary::GetLiveCharactersWithinRadius(const UObject* WorldObject,
+	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, const float Radius,
+	const FVector& CenterLocation)
+{
+	// from UGameplayStatics::ApplyRadialDamageWithFalloff
+	FCollisionQueryParams SphereParams;
+
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		TArray<FOverlapResult> OverlapResults;
+		World->OverlapMultiByObjectType(OverlapResults, CenterLocation, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(Radius), SphereParams);
+
+		for (auto& OverlapResult: OverlapResults)
+		{
+			if (OverlapResult.GetActor()->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsDead(OverlapResult.GetActor()))
+			{
+				OutOverlappingActors.AddUnique(OverlapResult.GetActor());
+			}
+		}
+	}
+}
+
+bool UAbilitySystemLibrary::IsNotFriendlyUnit(const AActor* FirstActor, const AActor* SecondActor)
+{
+	return FirstActor->ActorHasTag(FName("Player")) != SecondActor->ActorHasTag(FName("Player"));
 }

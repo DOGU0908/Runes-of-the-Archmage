@@ -35,6 +35,21 @@ void ACharacterBase::Die()
 	MulticastHandleDeath();
 }
 
+bool ACharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* ACharacterBase::GetAvatar_Implementation()
+{
+	return this;
+}
+
+UAnimMontage* ACharacterBase::GetCombatMontage_Implementation()
+{
+	return CombatMontage;
+}
+
 void ACharacterBase::MulticastHandleDeath_Implementation()
 {
 	GetMesh()->SetSimulatePhysics(true);
@@ -43,6 +58,8 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	bDead = true;
 }
 
 void ACharacterBase::BeginPlay()
@@ -71,7 +88,7 @@ void ACharacterBase::AddCharacterAbilities() const
 	CharacterAbilitySystemComponent->AddCharacterAbilities(StartAbilities);
 }
 
-FVector ACharacterBase::GetCombatSocketLocation()
+FVector ACharacterBase::GetCombatSocketLocation_Implementation()
 {
 	check(GetMesh());
 	return GetMesh()->GetSocketLocation(CombatSocketName);

@@ -40,7 +40,8 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.InputTag4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"));
 
 	// event montages
-	Instance.EventMontageAttack01 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack01"));
+	Instance.EventMontageAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack"));
+	Instance.EventMontageAttackMelee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.Melee"));
 
 	// combats
 	Instance.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"));

@@ -47,7 +47,8 @@ public:
 	FGameplayTag InputTag4;
 
 	// event montages
-	FGameplayTag EventMontageAttack01;
+	FGameplayTag EventMontageAttack;
+	FGameplayTag EventMontageAttackMelee;
 
 	// combats
 	FGameplayTag Damage;

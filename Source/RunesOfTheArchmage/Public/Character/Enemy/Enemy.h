@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/CharacterBase.h"
+#include "Combat/EnemyInterface.h"
 #include "Interaction/InteractionInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Enemy.generated.h"
@@ -17,7 +18,7 @@ class UWidgetComponent;
  * 
  */
 UCLASS()
-class RUNESOFTHEARCHMAGE_API AEnemy : public ACharacterBase, public IInteractionInterface
+class RUNESOFTHEARCHMAGE_API AEnemy : public ACharacterBase, public IInteractionInterface, public IEnemyInterface
 {
 	GENERATED_BODY()
 
@@ -41,7 +42,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Hit")
 	bool bHitReacting = false;
 
-	UPROPERTY(BlueprintReadOnly, Category="Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Movement")
 	float BaseWalkSpeed = 250.f;
 
 	virtual void Die() override;
@@ -50,6 +51,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Combat")
 	float LifeSpan = 5.f;
+
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,5 +76,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AEnemyAIController> AIController;
+
+	UPROPERTY(BlueprintReadWrite, Category="Combat")
+	TObjectPtr<AActor> CombatTarget;
 	
 };

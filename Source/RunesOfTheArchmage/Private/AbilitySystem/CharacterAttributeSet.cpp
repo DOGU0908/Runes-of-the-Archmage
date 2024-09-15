@@ -11,7 +11,6 @@
 #include "Character/PlayerCharacterController.h"
 #include "Combat/CombatInterface.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 
 UCharacterAttributeSet::UCharacterAttributeSet()
 {
@@ -280,6 +279,10 @@ void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectPro
 		if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(EffectProperties.SourceCharacter->Controller))
 		{
 			PlayerCharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter, bIsCriticalHit);
+		}
+		else if (APlayerCharacterController* CharacterController = Cast<APlayerCharacterController>(EffectProperties.TargetCharacter->Controller))
+		{
+			CharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter, bIsCriticalHit);
 		}
 	}
 }

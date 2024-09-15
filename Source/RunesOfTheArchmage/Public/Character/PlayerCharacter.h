@@ -29,8 +29,8 @@ public:
 protected:
 	virtual void InitAbilityActorInfo() override;
 
-	virtual FVector GetCombatSocketLocation() override;
-
+	virtual FVector GetCombatSocketLocation_Implementation() override;
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultBaseAttributes;
 

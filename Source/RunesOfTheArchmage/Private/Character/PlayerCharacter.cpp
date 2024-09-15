@@ -61,7 +61,6 @@ int32 APlayerCharacter::GetCharacterLevel()
 
 void APlayerCharacter::Die()
 {
-	// TODO: check player die feature after implementing enemy attack
 	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	Super::Die();
 }
@@ -112,7 +111,7 @@ void APlayerCharacter::InitAbilityActorInfo()
 	InitializeDefaultAttributes();
 }
 
-FVector APlayerCharacter::GetCombatSocketLocation()
+FVector APlayerCharacter::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(CombatSocketName);

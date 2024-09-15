@@ -30,9 +30,15 @@ public:
 	static void InitializeDefaultAttributes(const UObject* WorldObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* AbilitySystemComponent);
 
 	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
-	static void GiveStartupAbilities(const UObject* WorldObject, UAbilitySystemComponent* AbilitySystemComponent);
+	static void GiveStartupAbilities(const UObject* WorldObject, UAbilitySystemComponent* AbilitySystemComponent, ECharacterClass CharacterClass);
 
 	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
 	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
+	static void GetLiveCharactersWithinRadius(const UObject* WorldObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, const float Radius, const FVector& CenterLocation);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static bool IsNotFriendlyUnit(const AActor* FirstActor, const AActor* SecondActor);
 	
 };

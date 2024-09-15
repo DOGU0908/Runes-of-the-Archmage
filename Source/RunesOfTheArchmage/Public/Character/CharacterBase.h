@@ -31,6 +31,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
 
+	virtual bool IsDead_Implementation() const override;
+	
+	virtual AActor* GetAvatar_Implementation() override;
+
+	virtual UAnimMontage* GetCombatMontage_Implementation() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -49,7 +55,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	FName CombatSocketName;
 
-	virtual FVector GetCombatSocketLocation() override;
+	virtual FVector GetCombatSocketLocation_Implementation() override;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
@@ -57,5 +63,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+	
+	bool bDead = false;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TObjectPtr<UAnimMontage> CombatMontage;
 	
 };
