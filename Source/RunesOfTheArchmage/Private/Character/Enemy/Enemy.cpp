@@ -83,6 +83,13 @@ void AEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 void AEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+
+	// preventing attack while the enemy is dead but not destroyed
+	if (AIController)
+	{
+		AIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
+	}
+	
 	Super::Die();
 }
 
