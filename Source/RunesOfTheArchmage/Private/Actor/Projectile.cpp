@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "AbilitySystem/AbilitySystemLibrary.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
 
 AProjectile::AProjectile()
@@ -60,6 +61,12 @@ void AProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	// prevent the shooter to generate sphere overlap event
 	// if the enemy also has a projectile ability, this is important
 	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor)
+	{
+		return;
+	}
+
+	// prevent friendly unit attack by projectile
+	if (!UAbilitySystemLibrary::IsNotFriendlyUnit(DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser(), OtherActor))
 	{
 		return;
 	}

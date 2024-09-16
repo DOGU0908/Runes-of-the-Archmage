@@ -6,12 +6,14 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "RunesOfTheArchmage/RunesOfTheArchmage.h"
 
 ACharacterBase::ACharacterBase()
 {
  	PrimaryActorTick.bCanEverTick = false;
 
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
 }
 

@@ -49,6 +49,7 @@ public:
 	// event montages
 	FGameplayTag EventMontageAttack;
 	FGameplayTag EventMontageAttackMelee;
+	FGameplayTag EventMontageAttackWizard;
 
 	// combats
 	FGameplayTag Damage;

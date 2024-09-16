@@ -18,7 +18,6 @@
 AEnemy::AEnemy()
 {
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UCharacterAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);

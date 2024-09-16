@@ -42,7 +42,8 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	// event montages
 	Instance.EventMontageAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack"));
 	Instance.EventMontageAttackMelee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.Melee"));
-
+	Instance.EventMontageAttackWizard = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack.Wizard"));
+	
 	// combats
 	Instance.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Damage"));
 	Instance.EffectsHitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effects.HitReact"));
