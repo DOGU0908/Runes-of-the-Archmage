@@ -74,8 +74,9 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	for (const auto& Pair: FGameplayTagSingleton::Get().DamageTypesToResistances)
 	{
 		checkf(TagsToCaptureDefs.Contains(Pair.Value), TEXT("TagsToCaptureDefs does not contain the tag"));
-		
-		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key);
+
+		// do not show error log for some damage types not existing, this is legit
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);
 
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(TagsToCaptureDefs[Pair.Value], AggregatorEvaluateParameters, Resistance);
