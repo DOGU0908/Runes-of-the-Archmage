@@ -7,9 +7,13 @@
 #include "UI/WidgetController/WidgetControllerBase.h"
 #include "OverlayWidgetController.generated.h"
 
+struct FAbilityInfoData;
+class UCharacterAbilitySystemComponent;
+class UAbilityInfo;
 class UUserWidgetBase;
 struct FOnAttributeChangeData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoChanged, const FAbilityInfoData&, Info);
 
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -58,11 +62,19 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowDelegate MessageWidgetRowDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FOnAbilityInfoChanged OnAbilityInfoChanged;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
+
+	void OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent);
+	
 	// TODO: move to static library
 	template<class T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);

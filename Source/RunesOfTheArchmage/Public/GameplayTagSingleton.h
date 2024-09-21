@@ -68,6 +68,22 @@ public:
 	FGameplayTag AttributesResistancesThunder;
 	FGameplayTag AttributesResistancesPhysical;
 
+	// abilities
+	FGameplayTag Abilities_Fire;
+	FGameplayTag Abilities_FireStorm;
+	FGameplayTag Abilities_Ice;
+	FGameplayTag Abilities_IceStorm;
+	FGameplayTag Abilities_Thunder;
+	FGameplayTag Abilities_ThunderStorm;
+
+	// cooldowns
+	FGameplayTag Cooldown_Fire;
+	FGameplayTag Cooldown_FireStorm;
+	FGameplayTag Cooldown_Ice;
+	FGameplayTag Cooldown_IceStorm;
+	FGameplayTag Cooldown_Thunder;
+	FGameplayTag Cooldown_ThunderStorm;
+
 private:
 	static FGameplayTagSingleton Instance;
 	

@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -47,17 +48,49 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		}
 	);
 
-	Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[this](const FGameplayTagContainer& GameplayTagContainer)
-		{
-			for (const FGameplayTag& Tag: GameplayTagContainer)
+	if (UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		CharacterAbilitySystemComponent->EffectAssetTags.AddLambda(
+			[this](const FGameplayTagContainer& GameplayTagContainer)
 			{
-				if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Message"))))
+				for (const FGameplayTag& Tag: GameplayTagContainer)
 				{
-					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-					MessageWidgetRowDelegate.Broadcast(*Row);
+					if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Message"))))
+					{
+						const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+						MessageWidgetRowDelegate.Broadcast(*Row);
+					}
 				}
 			}
+		);
+
+		if (CharacterAbilitySystemComponent->bGivenStartupAbilities)
+		{
+			OnInitializeStartupAbilities(CharacterAbilitySystemComponent);
+		}
+		else
+		{
+			CharacterAbilitySystemComponent->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+		}
+	}
+}
+
+void UOverlayWidgetController::OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent)
+{
+	if (!CharacterAbilitySystemComponent->bGivenStartupAbilities)
+	{
+		return;
+	}
+
+	FForEachAbility AbilityDelegate;
+	AbilityDelegate.BindLambda(
+		[this, CharacterAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
+		{
+			FAbilityInfoData AbilityInfoData = AbilityInfo->FindAbilityInfoForTag(CharacterAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
+			// check the ability input tag
+			AbilityInfoData.InputTag = CharacterAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+			OnAbilityInfoChanged.Broadcast(AbilityInfoData);
 		}
 	);
+	CharacterAbilitySystemComponent->ForEachAbility(AbilityDelegate);
 }

@@ -7,6 +7,8 @@
 #include "CharacterAbilitySystemComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitiesGiven, UCharacterAbilitySystemComponent*);
+DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 
 /**
  * 
@@ -26,10 +28,20 @@ public:
 	void AbilityPressedByInputTag(const FGameplayTag& InputTag);
 	void AbilityHeldByInputTag(const FGameplayTag& InputTag);
 	void AbilityReleasedByInputTag(const FGameplayTag& InputTag);
+
+	FAbilitiesGiven AbilitiesGivenDelegate;
+	bool bGivenStartupAbilities = false;
+
+	void ForEachAbility(const FForEachAbility& Delegate);
+
+	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
+	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	
 protected:
 	// replicate to client
 	UFUNCTION(Client, Reliable)
 	void OnEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveGameplayEffectHandle) const;
+
+	virtual void OnRep_ActivateAbilities() override;
 	
 };

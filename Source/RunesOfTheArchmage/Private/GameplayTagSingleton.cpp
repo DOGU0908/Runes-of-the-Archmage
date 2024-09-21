@@ -65,4 +65,20 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypeIce, Instance.AttributesResistancesIce);
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypeThunder, Instance.AttributesResistancesThunder);
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypePhysical, Instance.AttributesResistancesPhysical);
+
+	// abilities
+	Instance.Abilities_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Fire"));
+	Instance.Abilities_FireStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.FireStorm"));
+	Instance.Abilities_Ice = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Ice"));
+	Instance.Abilities_IceStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.IceStorm"));
+	Instance.Abilities_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Thunder"));
+	Instance.Abilities_ThunderStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.ThunderStorm"));
+
+	// cooldowns
+	Instance.Cooldown_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire"));
+	Instance.Cooldown_FireStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.FireStorm"));
+	Instance.Cooldown_Ice = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Ice"));
+	Instance.Cooldown_IceStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.IceStorm"));
+	Instance.Cooldown_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Thunder"));
+	Instance.Cooldown_ThunderStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.ThunderStorm"));
 }
