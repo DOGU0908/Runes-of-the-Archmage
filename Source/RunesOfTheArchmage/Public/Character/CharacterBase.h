@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "Combat/CombatInterface.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
@@ -37,6 +38,8 @@ public:
 
 	virtual UAnimMontage* GetCombatMontage_Implementation() override;
 
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -57,9 +60,15 @@ protected:
 
 	virtual FVector GetCombatSocketLocation_Implementation() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Melee;
+
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartAbilities;
+
+	UPROPERTY(EditAnywhere, Category="Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartPassiveAbilities;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystemLibrary.generated.h"
 
+class UCharacterClassInfo;
 struct FGameplayEffectContextHandle;
 class UAbilitySystemComponent;
 enum class ECharacterClass : uint8;
@@ -40,5 +41,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
 	static bool IsNotFriendlyUnit(const AActor* FirstActor, const AActor* SecondActor);
+
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
+	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldObject);
+
+	static int32 GetExpRewardByClassAndLevel(const UObject* WorldObject, ECharacterClass CharacterClass, int32 Level);
 	
 };

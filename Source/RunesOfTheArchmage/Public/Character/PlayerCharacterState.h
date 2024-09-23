@@ -7,8 +7,11 @@
 #include "GameFramework/PlayerState.h"
 #include "PlayerCharacterState.generated.h"
 
+class ULevelUpInfo;
 class UAbilitySystemComponent;
 class UAttributeSet;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChange, int32)
 
 /**
  * 
@@ -27,6 +30,19 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	FORCEINLINE int32 GetCharacterLevel() const {return Level;}
+	void AddLevel(const int32 InLevel);
+	void SetLevel(const int32 InLevel);
+
+	FOnPlayerStatChange OnLevelChangeDelegate;
+	
+	FORCEINLINE int32 GetExp() const {return Exp;}
+	void AddToExp(const int32 InExp);
+	void SetExp(const int32 InExp);
+	
+	FOnPlayerStatChange OnExpChangeDelegate;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -41,5 +57,11 @@ private:
 
 	UFUNCTION()
 	void OnRep_Level(int32 OldLevel) const;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_Exp)
+	int32 Exp = 0;
+
+	UFUNCTION()
+	void OnRep_Exp(int32 OldExp) const;
 	
 };

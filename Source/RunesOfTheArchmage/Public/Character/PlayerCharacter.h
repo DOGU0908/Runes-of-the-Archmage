@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayerInterface.h"
 #include "Character/CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class RUNESOFTHEARCHMAGE_API APlayerCharacter : public ACharacterBase
+class RUNESOFTHEARCHMAGE_API APlayerCharacter : public ACharacterBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 
@@ -25,6 +26,8 @@ public:
 	virtual void Die() override;
 
 	virtual void MulticastHandleDeath_Implementation() override;
+
+	virtual void AddExp_Implementation(int32 InExp) override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;

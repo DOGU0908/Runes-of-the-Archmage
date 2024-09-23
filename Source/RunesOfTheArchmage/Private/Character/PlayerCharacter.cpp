@@ -32,6 +32,11 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	/*
+	 * Character Class
+	 */
+	CharacterClass = ECharacterClass::Wizard;
 }
 
 void APlayerCharacter::PossessedBy(AController* NewController)
@@ -72,6 +77,14 @@ void APlayerCharacter::MulticastHandleDeath_Implementation()
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	
 	Super::MulticastHandleDeath_Implementation();
+}
+
+void APlayerCharacter::AddExp_Implementation(int32 InExp)
+{
+	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	PlayerCharacterState->AddToExp(InExp);
 }
 
 /*

@@ -52,6 +52,11 @@ UAnimMontage* ACharacterBase::GetCombatMontage_Implementation()
 	return CombatMontage;
 }
 
+ECharacterClass ACharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 void ACharacterBase::MulticastHandleDeath_Implementation()
 {
 	GetMesh()->SetSimulatePhysics(true);
@@ -88,6 +93,7 @@ void ACharacterBase::AddCharacterAbilities() const
 
 	UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = CastChecked<UCharacterAbilitySystemComponent>(AbilitySystemComponent);
 	CharacterAbilitySystemComponent->AddCharacterAbilities(StartAbilities);
+	CharacterAbilitySystemComponent->AddCharacterPassiveAbilities(StartPassiveAbilities);
 }
 
 FVector ACharacterBase::GetCombatSocketLocation_Implementation()

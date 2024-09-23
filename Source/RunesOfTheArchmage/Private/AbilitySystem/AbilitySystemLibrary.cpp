@@ -81,14 +81,12 @@ void UAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldObje
 void UAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldObject,
 	UAbilitySystemComponent* AbilitySystemComponent, ECharacterClass CharacterClass)
 {
-	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
-
-	if (!RunesOfTheArchmageGameMode)
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldObject);
+	if (!CharacterClassInfo)
 	{
 		return;
 	}
 	
-	UCharacterClassInfo* CharacterClassInfo = RunesOfTheArchmageGameMode->CharacterClassInfo;
 	for (auto CommonAbility: CharacterClassInfo->CommonAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(CommonAbility, 1);
@@ -141,4 +139,31 @@ void UAbilitySystemLibrary::GetLiveCharactersWithinRadius(const UObject* WorldOb
 bool UAbilitySystemLibrary::IsNotFriendlyUnit(const AActor* FirstActor, const AActor* SecondActor)
 {
 	return FirstActor->ActorHasTag(FName("Player")) != SecondActor->ActorHasTag(FName("Player"));
+}
+
+UCharacterClassInfo* UAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldObject)
+{
+	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
+
+	if (!RunesOfTheArchmageGameMode)
+	{
+		return nullptr;
+	}
+	
+	return RunesOfTheArchmageGameMode->CharacterClassInfo;
+}
+
+int32 UAbilitySystemLibrary::GetExpRewardByClassAndLevel(const UObject* WorldObject, ECharacterClass CharacterClass,
+                                                         int32 Level)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldObject);
+	if (!CharacterClassInfo)
+	{
+		return 0;
+	}
+
+	const FCharacterClassDefaultInfo& ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	const float ExpReward = ClassDefaultInfo.ExpReward.GetValueAtLevel(Level);
+
+	return static_cast<int32>(ExpReward);
 }

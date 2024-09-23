@@ -28,6 +28,16 @@ void UCharacterAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubcl
 	AbilitiesGivenDelegate.Broadcast(this);
 }
 
+void UCharacterAbilitySystemComponent::AddCharacterPassiveAbilities(
+	const TArray<TSubclassOf<UGameplayAbility>>& PassiveAbilities)
+{
+	for (const auto& AbilityClass: PassiveAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		GiveAbilityAndActivateOnce(AbilitySpec);
+	}
+}
+
 void UCharacterAbilitySystemComponent::AbilityPressedByInputTag(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid())

@@ -32,6 +32,9 @@ public:
 	FGameplayTag AttributesSecondaryMaxHealth;
 	FGameplayTag AttributesSecondaryMaxMana;
 
+	// temporary attributes
+	FGameplayTag AttributesMetaIncomingExp;
+
 	// messages
 	FGameplayTag MessageHealthPotion;
 	FGameplayTag MessageManaPotion;

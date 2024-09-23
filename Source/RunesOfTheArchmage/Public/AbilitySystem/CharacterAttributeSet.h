@@ -217,8 +217,14 @@ public:
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, IncomingDamage);
 
+	UPROPERTY(BlueprintReadOnly, Category="Temp Attributes")
+	FGameplayAttributeData IncomingExp;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, IncomingExp);
+
 private:
 	static void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties);
 
 	void ShowFloatingText(const FEffectProperties& EffectProperties, const float Damage, const bool bIsCriticalHit) const;
+
+	void SendExpEvent(const FEffectProperties& EffectProperties);
 };

@@ -39,8 +39,44 @@ void APlayerCharacterState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APlayerCharacterState, Level);
+	DOREPLIFETIME(APlayerCharacterState, Exp);
+}
+
+void APlayerCharacterState::AddLevel(const int32 InLevel)
+{
+	Level += InLevel;
+
+	OnLevelChangeDelegate.Broadcast(Level);
+}
+
+void APlayerCharacterState::SetLevel(const int32 InLevel)
+{
+	Level = InLevel;
+
+	OnLevelChangeDelegate.Broadcast(Level);
+}
+
+void APlayerCharacterState::AddToExp(const int32 InExp)
+{
+	Exp += InExp;
+
+	OnExpChangeDelegate.Broadcast(Exp);
+}
+
+void APlayerCharacterState::SetExp(const int32 InExp)
+{
+	Exp = InExp;
+	
+	OnExpChangeDelegate.Broadcast(Exp);
 }
 
 void APlayerCharacterState::OnRep_Level(int32 OldLevel) const
 {
+	OnLevelChangeDelegate.Broadcast(Level);
+}
+
+void APlayerCharacterState::OnRep_Exp(int32 OldExp) const
+{
+	// exp change only occurs in server, then client is replicated and calls this function
+	OnExpChangeDelegate.Broadcast(Exp);
 }

@@ -6,6 +6,8 @@
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Character/PlayerCharacterState.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -20,8 +22,12 @@ void UOverlayWidgetController::BroadcastInitialValues()
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	const UCharacterAttributeSet* CharacterAttributeSet = CastChecked<UCharacterAttributeSet>(AttributeSet);
+	APlayerCharacterState* PlayerCharacterState = CastChecked<APlayerCharacterState>(PlayerState);
 
+	PlayerCharacterState->OnExpChangeDelegate.AddUObject(this, &UOverlayWidgetController::OnExpChanged);
+	
+	const UCharacterAttributeSet* CharacterAttributeSet = CastChecked<UCharacterAttributeSet>(AttributeSet);
+	
 	// add binding to attribute change runtime
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CharacterAttributeSet->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
@@ -93,4 +99,25 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UCharacterAbilitySys
 		}
 	);
 	CharacterAbilitySystemComponent->ForEachAbility(AbilityDelegate);
+}
+
+void UOverlayWidgetController::OnExpChanged(int32 NewExp) const
+{
+	const APlayerCharacterState* PlayerCharacterState = CastChecked<APlayerCharacterState>(PlayerState);
+
+	const ULevelUpInfo* LevelUpInfo = PlayerCharacterState->LevelUpInfo;
+	checkf(LevelUpInfo, TEXT("Level up info is not found in player state"));
+
+	const int32 Level = LevelUpInfo->FindLevelByExp(NewExp);
+	// if not max level
+	if (Level <= LevelUpInfo->LevelUpInfo.Num())
+	{
+		const int32 PreviousLevelUpRequirement = Level > 1 ? LevelUpInfo->LevelUpInfo[Level - 2].LevelUpRequirement : 0;
+		
+		const int32 ThisLevelUpRequirement = LevelUpInfo->LevelUpInfo[Level - 1].LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 ThisLevelExp = NewExp - PreviousLevelUpRequirement;
+
+		const float ExpBarPercent = static_cast<float>(ThisLevelExp) / static_cast<float>(ThisLevelUpRequirement);
+		OnExpPercentChanged.Broadcast(ExpBarPercent);
+	}
 }

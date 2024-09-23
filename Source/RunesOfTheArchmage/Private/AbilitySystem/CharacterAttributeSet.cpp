@@ -9,6 +9,7 @@
 #include "GameplayTagSingleton.h"
 #include "AbilitySystem/AbilitySystemLibrary.h"
 #include "Character/PlayerCharacterController.h"
+#include "Character/PlayerInterface.h"
 #include "Combat/CombatInterface.h"
 #include "GameFramework/Character.h"
 
@@ -127,9 +128,22 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 				{
 					CombatInterface->Die();
 				}
+				SendExpEvent(EffectProperties);
 			}
 
 			ShowFloatingText(EffectProperties, LocalIncomingDamage, UAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle));
+		}
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingExpAttribute())
+	{
+		const float LocalIncomingExp = GetIncomingExp();
+		SetIncomingExp(0.f);
+		
+		// TODO: check level up
+		if (EffectProperties.SourceCharacter->Implements<UPlayerInterface>())
+		{
+			IPlayerInterface::Execute_AddExp(EffectProperties.SourceCharacter, LocalIncomingExp);
 		}
 	}
 }
@@ -284,5 +298,18 @@ void UCharacterAttributeSet::ShowFloatingText(const FEffectProperties& EffectPro
 		{
 			CharacterController->ShowDamageNumber(Damage, EffectProperties.TargetCharacter, bIsCriticalHit);
 		}
+	}
+}
+
+void UCharacterAttributeSet::SendExpEvent(const FEffectProperties& EffectProperties)
+{
+	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetCharacter))
+	{
+		const int32 ExpReward = UAbilitySystemLibrary::GetExpRewardByClassAndLevel(EffectProperties.TargetCharacter, ICombatInterface::Execute_GetCharacterClass(EffectProperties.TargetCharacter), CombatInterface->GetCharacterLevel());
+
+		FGameplayEventData Payload;
+		Payload.EventTag = FGameplayTagSingleton::Get().AttributesMetaIncomingExp;
+		Payload.EventMagnitude = ExpReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(EffectProperties.SourceCharacter, FGameplayTagSingleton::Get().AttributesMetaIncomingExp, Payload);
 	}
 }
