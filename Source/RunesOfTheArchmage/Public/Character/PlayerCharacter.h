@@ -7,6 +7,8 @@
 #include "Character/CharacterBase.h"
 #include "PlayerCharacter.generated.h"
 
+class UNiagaraComponent;
+
 /**
  * 
  */
@@ -27,7 +29,17 @@ public:
 
 	virtual void MulticastHandleDeath_Implementation() override;
 
+	virtual int32 GetExp_Implementation() const override;
 	virtual void AddExp_Implementation(int32 InExp) override;
+	
+	virtual void LevelUp_Implementation() override;
+	virtual int32 FindLevelByExp_Implementation(int32 InExp) const override;
+	virtual void AddPlayerLevel_Implementation(int32 InPlayerLevel) override;
+	
+	virtual int32 GetAttributePointsReward_Implementation(int32 Level) const override;
+	virtual int32 GetSpellPointsReward_Implementation(int32 Level) const override;
+	virtual void AddAttributePoints_Implementation(int32 InAttributePoints) override;
+	virtual void AddSpellPoints_Implementation(int32 InSpellPoints) override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;
@@ -46,8 +58,14 @@ protected:
 	virtual void InitializeDefaultAttributes() const override;
 	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
+
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<UStaticMeshComponent> Weapon;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLevelUpParticles() const;
 	
 };

@@ -5,10 +5,12 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Character/PlayerCharacterController.h"
 #include "Character/PlayerCharacterState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/HUD/HUDBase.h"
+#include "NiagaraComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -37,6 +39,10 @@ APlayerCharacter::APlayerCharacter()
 	 * Character Class
 	 */
 	CharacterClass = ECharacterClass::Wizard;
+
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
+	LevelUpNiagaraComponent->bAutoActivate = false;
 }
 
 void APlayerCharacter::PossessedBy(AController* NewController)
@@ -79,12 +85,67 @@ void APlayerCharacter::MulticastHandleDeath_Implementation()
 	Super::MulticastHandleDeath_Implementation();
 }
 
+int32 APlayerCharacter::GetExp_Implementation() const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->GetExp();
+}
+
 void APlayerCharacter::AddExp_Implementation(int32 InExp)
 {
 	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
 	check(PlayerCharacterState);
 
 	PlayerCharacterState->AddToExp(InExp);
+}
+
+void APlayerCharacter::LevelUp_Implementation()
+{
+	MulticastLevelUpParticles();
+}
+
+int32 APlayerCharacter::FindLevelByExp_Implementation(int32 InExp) const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->LevelUpInfo->FindLevelByExp(InExp);
+}
+
+void APlayerCharacter::AddPlayerLevel_Implementation(int32 InPlayerLevel)
+{
+	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	PlayerCharacterState->AddLevel(InPlayerLevel);
+}
+
+int32 APlayerCharacter::GetAttributePointsReward_Implementation(int32 Level) const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->LevelUpInfo->LevelUpInfo[Level].AttributePointReward;
+}
+
+int32 APlayerCharacter::GetSpellPointsReward_Implementation(int32 Level) const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->LevelUpInfo->LevelUpInfo[Level].SpellPointReward;
+}
+
+void APlayerCharacter::AddAttributePoints_Implementation(int32 InAttributePoints)
+{
+	// TODO: add attribute points (player character state)
+}
+
+void APlayerCharacter::AddSpellPoints_Implementation(int32 InSpellPoints)
+{
+	// TODO: add spell points (player character state)
 }
 
 /*
@@ -147,4 +208,12 @@ void APlayerCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& Gam
 	GameplayEffectContextHandle.AddSourceObject(this);
 	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, GameplayEffectContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*GameplayEffectSpecHandle.Data.Get());
+}
+
+void APlayerCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		LevelUpNiagaraComponent->Activate(true);
+	}
 }

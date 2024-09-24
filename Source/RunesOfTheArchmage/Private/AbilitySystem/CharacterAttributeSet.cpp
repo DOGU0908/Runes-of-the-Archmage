@@ -140,9 +140,30 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 		const float LocalIncomingExp = GetIncomingExp();
 		SetIncomingExp(0.f);
 		
-		// TODO: check level up
 		if (EffectProperties.SourceCharacter->Implements<UPlayerInterface>())
 		{
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.SourceCharacter))
+			{
+				const int32 CurrentLevel = CombatInterface->GetCharacterLevel();
+				const int32 CurrentExp = IPlayerInterface::Execute_GetExp(EffectProperties.SourceCharacter);
+
+				const int32 NewLevel = IPlayerInterface::Execute_FindLevelByExp(EffectProperties.SourceCharacter, CurrentExp + LocalIncomingExp);
+
+				const int32 NumLevelUp = NewLevel - CurrentLevel;
+				if (NumLevelUp > 0)
+				{
+					IPlayerInterface::Execute_AddPlayerLevel(EffectProperties.SourceCharacter, NumLevelUp);
+					// TODO:
+					// IPlayerInterface::Execute_AddAttributePoints(EffectProperties.SourceCharacter, )
+					// IPlayerInterface::Execute_AddSpellPoints(EffectProperties.SourceCharacter, )
+
+					SetHealth(GetMaxHealth());
+					SetMana(GetMaxMana());
+
+					IPlayerInterface::Execute_LevelUp(EffectProperties.SourceCharacter);
+				}
+			}
+			
 			IPlayerInterface::Execute_AddExp(EffectProperties.SourceCharacter, LocalIncomingExp);
 		}
 	}

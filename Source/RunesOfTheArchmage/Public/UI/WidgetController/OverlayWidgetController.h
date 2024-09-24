@@ -14,6 +14,7 @@ class UUserWidgetBase;
 struct FOnAttributeChangeData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnExpChanged, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoChanged, const FAbilityInfoData&, Info);
 
 USTRUCT(BlueprintType)
@@ -69,6 +70,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Exp")
 	FOnExpChanged OnExpPercentChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
+	FOnPlayerStatChanged OnPlayerLevelChanged;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
