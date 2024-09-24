@@ -40,6 +40,8 @@ public:
 	virtual int32 GetSpellPointsReward_Implementation(int32 Level) const override;
 	virtual void AddAttributePoints_Implementation(int32 InAttributePoints) override;
 	virtual void AddSpellPoints_Implementation(int32 InSpellPoints) override;
+	virtual int32 GetAttributePoints_Implementation() const override;
+	virtual int32 GetSpellPoints_Implementation() const override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;

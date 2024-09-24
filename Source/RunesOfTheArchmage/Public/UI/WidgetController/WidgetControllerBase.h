@@ -8,6 +8,7 @@
 
 class UAttributeSet;
 class UAbilitySystemComponent;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32, NewValue);
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams

@@ -3,8 +3,10 @@
 
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 
+#include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
+#include "Character/PlayerCharacterState.h"
 
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
@@ -21,6 +23,15 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 			}
 		);
 	}
+
+	APlayerCharacterState* PlayerCharacterState = CastChecked<APlayerCharacterState>(PlayerState);
+
+	PlayerCharacterState->OnAttributePointsChangeDelegate.AddLambda(
+		[this](int32 Points)
+		{
+			AttributePointsChangedDelegate.Broadcast(Points);
+		}
+	);
 }
 
 void UAttributeMenuWidgetController::BroadcastInitialValues()
@@ -33,10 +44,20 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	{
 		BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	}
+
+	APlayerCharacterState* PlayerCharacterState = CastChecked<APlayerCharacterState>(PlayerState);
+
+	AttributePointsChangedDelegate.Broadcast(PlayerCharacterState->GetAttributePoints());
+}
+
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = CastChecked<UCharacterAbilitySystemComponent>(AbilitySystemComponent);
+	CharacterAbilitySystemComponent->UpgradeAttribute(AttributeTag);
 }
 
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag,
-	const FGameplayAttribute& GameplayAttribute) const
+                                                            const FGameplayAttribute& GameplayAttribute) const
 {
 	FBaseAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(AttributeTag);
 	Info.AttributeValue = GameplayAttribute.GetNumericValue(AttributeSet);

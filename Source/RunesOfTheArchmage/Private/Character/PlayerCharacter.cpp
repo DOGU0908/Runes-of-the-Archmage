@@ -140,12 +140,34 @@ int32 APlayerCharacter::GetSpellPointsReward_Implementation(int32 Level) const
 
 void APlayerCharacter::AddAttributePoints_Implementation(int32 InAttributePoints)
 {
-	// TODO: add attribute points (player character state)
+	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	PlayerCharacterState->AddAttributePoints(InAttributePoints);
 }
 
 void APlayerCharacter::AddSpellPoints_Implementation(int32 InSpellPoints)
 {
-	// TODO: add spell points (player character state)
+	APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	PlayerCharacterState->AddSpellPoints(InSpellPoints);
+}
+
+int32 APlayerCharacter::GetAttributePoints_Implementation() const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->GetAttributePoints();
+}
+
+int32 APlayerCharacter::GetSpellPoints_Implementation() const
+{
+	const APlayerCharacterState* PlayerCharacterState = GetPlayerState<APlayerCharacterState>();
+	check(PlayerCharacterState);
+
+	return PlayerCharacterState->GetSpellPoints();
 }
 
 /*

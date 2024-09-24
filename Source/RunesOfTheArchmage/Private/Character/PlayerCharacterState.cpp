@@ -40,6 +40,8 @@ void APlayerCharacterState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME(APlayerCharacterState, Level);
 	DOREPLIFETIME(APlayerCharacterState, Exp);
+	DOREPLIFETIME(APlayerCharacterState, AttributePoints);
+	DOREPLIFETIME(APlayerCharacterState, SpellPoints);
 }
 
 void APlayerCharacterState::AddLevel(const int32 InLevel)
@@ -70,6 +72,20 @@ void APlayerCharacterState::SetExp(const int32 InExp)
 	OnExpChangeDelegate.Broadcast(Exp);
 }
 
+void APlayerCharacterState::AddAttributePoints(int32 InPoints)
+{
+	AttributePoints += InPoints;
+	
+	OnAttributePointsChangeDelegate.Broadcast(AttributePoints);
+}
+
+void APlayerCharacterState::AddSpellPoints(int32 InPoints)
+{
+	SpellPoints += InPoints;
+
+	OnSpellPointsChangeDelegate.Broadcast(SpellPoints);
+}
+
 void APlayerCharacterState::OnRep_Level(int32 OldLevel) const
 {
 	OnLevelChangeDelegate.Broadcast(Level);
@@ -79,4 +95,14 @@ void APlayerCharacterState::OnRep_Exp(int32 OldExp) const
 {
 	// exp change only occurs in server, then client is replicated and calls this function
 	OnExpChangeDelegate.Broadcast(Exp);
+}
+
+void APlayerCharacterState::OnRep_AttributePoints(int32 OldAttributePoints) const
+{
+	OnAttributePointsChangeDelegate.Broadcast(AttributePoints);
+}
+
+void APlayerCharacterState::OnRep_SpellPoints(int32 OldSpellPoints) const
+{
+	OnSpellPointsChangeDelegate.Broadcast(SpellPoints);
 }

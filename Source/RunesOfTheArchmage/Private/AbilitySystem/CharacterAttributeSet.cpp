@@ -152,13 +152,17 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 				const int32 NumLevelUp = NewLevel - CurrentLevel;
 				if (NumLevelUp > 0)
 				{
+					const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(EffectProperties.SourceCharacter, CurrentLevel);
+					const int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(EffectProperties.SourceCharacter, CurrentLevel);
+					
 					IPlayerInterface::Execute_AddPlayerLevel(EffectProperties.SourceCharacter, NumLevelUp);
-					// TODO:
-					// IPlayerInterface::Execute_AddAttributePoints(EffectProperties.SourceCharacter, )
-					// IPlayerInterface::Execute_AddSpellPoints(EffectProperties.SourceCharacter, )
+					IPlayerInterface::Execute_AddAttributePoints(EffectProperties.SourceCharacter, AttributePointsReward);
+					IPlayerInterface::Execute_AddSpellPoints(EffectProperties.SourceCharacter, SpellPointsReward);
 
-					SetHealth(GetMaxHealth());
-					SetMana(GetMaxMana());
+					// in this point, the player level is not up, thus cannot call set health to max health
+					// set the booleans to trigger health and mana restoring, as max health and mana can change in other cases
+					bRestoreHealth = true;
+					bRestoreMana = true;
 
 					IPlayerInterface::Execute_LevelUp(EffectProperties.SourceCharacter);
 				}
@@ -166,6 +170,24 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 			
 			IPlayerInterface::Execute_AddExp(EffectProperties.SourceCharacter, LocalIncomingExp);
 		}
+	}
+}
+
+void UCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+	// this is the correct place to set health and mana to its max value as player level up will trigger change in max health and mana
+	// by MMC_MaxHealth and Mana
+	if (Attribute == GetMaxHealthAttribute() && bRestoreHealth)
+	{
+		SetHealth(GetMaxHealth());
+		bRestoreHealth = false;
+	}
+	if (Attribute == GetMaxManaAttribute() && bRestoreMana)
+	{
+		SetMana(GetMaxMana());
+		bRestoreMana = false;
 	}
 }
 

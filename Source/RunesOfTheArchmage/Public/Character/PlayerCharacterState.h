@@ -44,6 +44,16 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 
+	FOnPlayerStatChange OnAttributePointsChangeDelegate;
+
+	FORCEINLINE int32 GetAttributePoints() const {return AttributePoints;}
+	void AddAttributePoints(int32 InPoints);
+	
+	FOnPlayerStatChange OnSpellPointsChangeDelegate;
+
+	FORCEINLINE int32 GetSpellPoints() const {return SpellPoints;}
+	void AddSpellPoints(int32 InPoints);
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -63,5 +73,17 @@ private:
 
 	UFUNCTION()
 	void OnRep_Exp(int32 OldExp) const;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_AttributePoints)
+	int32 AttributePoints = 0;
+	
+	UFUNCTION()
+	void OnRep_AttributePoints(int32 OldAttributePoints) const;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_SpellPoints)
+	int32 SpellPoints = 0;
+	
+	UFUNCTION()
+	void OnRep_SpellPoints(int32 OldSpellPoints) const;
 	
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UI/WidgetController/WidgetControllerBase.h"
 #include "AttributeMenuWidgetController.generated.h"
 
@@ -26,6 +27,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FAttributeInfoDelegate AttributeInfoDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStatChanged AttributePointsChangedDelegate;
+
+	UFUNCTION(BlueprintCallable)
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly)

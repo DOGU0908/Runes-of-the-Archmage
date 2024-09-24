@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Abilities/GameplayAbilityBase.h"
+#include "Character/PlayerInterface.h"
 
 void UCharacterAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -131,6 +133,32 @@ FGameplayTag UCharacterAbilitySystemComponent::GetInputTagFromSpec(const FGamepl
 	}
 
 	return FGameplayTag();
+}
+
+void UCharacterAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		if (IPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
+		{
+			// send info to server to upgrade attribute
+			ServerUpgradeAttribute(AttributeTag);
+		}
+	}
+}
+
+void UCharacterAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.0f;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
+
+	if (GetAvatarActor()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_AddAttributePoints(GetAvatarActor(), -1);
+	}
 }
 
 void UCharacterAbilitySystemComponent::OnRep_ActivateAbilities()
