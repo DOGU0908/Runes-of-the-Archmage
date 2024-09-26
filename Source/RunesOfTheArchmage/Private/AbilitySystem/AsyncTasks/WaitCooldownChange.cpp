@@ -29,7 +29,7 @@ void UWaitCooldownChange::EndTask()
 	{
 		return;
 	}
-	
+
 	AbilitySystemComponent->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
 
 	// clean up

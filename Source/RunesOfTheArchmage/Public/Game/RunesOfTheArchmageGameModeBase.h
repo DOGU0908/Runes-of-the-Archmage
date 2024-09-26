@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "RunesOfTheArchmageGameModeBase.generated.h"
 
+class UAbilityInfo;
 class UCharacterClassInfo;
 /**
  * 
@@ -18,5 +19,8 @@ class RUNESOFTHEARCHMAGE_API ARunesOfTheArchmageGameModeBase : public AGameModeB
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category="Ability Info")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
 	
 };

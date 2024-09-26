@@ -14,18 +14,35 @@
 #include "UI/HUD/HUDBase.h"
 #include "UI/WidgetController/WidgetControllerBase.h"
 
-UOverlayWidgetController* UAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldObject)
+bool UAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldObject,
+	FWidgetControllerParams& OutWidgetControllerParams, AHUDBase*& OutHUD)
 {
 	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldObject, 0))
 	{
-		if (AHUDBase* HUD = Cast<AHUDBase>(PlayerController->GetHUD()))
+		OutHUD = Cast<AHUDBase>(PlayerController->GetHUD());
+		if (OutHUD)
 		{
-			APlayerCharacterState* PlayerCharacterState = PlayerController->GetPlayerState<APlayerCharacterState>();
-			UAbilitySystemComponent* AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
-			UAttributeSet* AttributeSet = PlayerCharacterState->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PlayerController, PlayerCharacterState, AbilitySystemComponent, AttributeSet);
-			return HUD->GetOverlayWidgetController(WidgetControllerParams);
+			const APlayerCharacterState* PlayerCharacterState = PlayerController->GetPlayerState<APlayerCharacterState>();
+			
+			OutWidgetControllerParams.AttributeSet = PlayerCharacterState->GetAttributeSet();
+			OutWidgetControllerParams.AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
+			OutWidgetControllerParams.PlayerState = PlayerController->GetPlayerState<APlayerCharacterState>();
+			OutWidgetControllerParams.PlayerController = PlayerController;
+			
+			return true;
 		}
+	}
+
+	return false;
+}
+
+UOverlayWidgetController* UAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldObject)
+{
+	FWidgetControllerParams WidgetControllerParams;
+	AHUDBase* HUD = nullptr;
+	if (MakeWidgetControllerParams(WorldObject, WidgetControllerParams, HUD))
+	{
+		return HUD->GetOverlayWidgetController(WidgetControllerParams);
 	}
 
 	return nullptr;
@@ -33,16 +50,23 @@ UOverlayWidgetController* UAbilitySystemLibrary::GetOverlayWidgetController(cons
 
 UAttributeMenuWidgetController* UAbilitySystemLibrary::GetAttributeMenuWidgetController(const UObject* WorldObject)
 {
-	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldObject, 0))
+	FWidgetControllerParams WidgetControllerParams;
+	AHUDBase* HUD = nullptr;
+	if (MakeWidgetControllerParams(WorldObject, WidgetControllerParams, HUD))
 	{
-		if (AHUDBase* HUD = Cast<AHUDBase>(PlayerController->GetHUD()))
-		{
-			APlayerCharacterState* PlayerCharacterState = PlayerController->GetPlayerState<APlayerCharacterState>();
-			UAbilitySystemComponent* AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
-			UAttributeSet* AttributeSet = PlayerCharacterState->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PlayerController, PlayerCharacterState, AbilitySystemComponent, AttributeSet);
-			return HUD->GetAttributeMenuWidgetController(WidgetControllerParams);
-		}
+		return HUD->GetAttributeMenuWidgetController(WidgetControllerParams);
+	}
+
+	return nullptr;
+}
+
+USpellMenuWidgetController* UAbilitySystemLibrary::GetSpellMenuWidgetController(const UObject* WorldObject)
+{
+	FWidgetControllerParams WidgetControllerParams;
+	AHUDBase* HUD = nullptr;
+	if (MakeWidgetControllerParams(WorldObject, WidgetControllerParams, HUD))
+	{
+		return HUD->GetSpellMenuWidgetController(WidgetControllerParams);
 	}
 
 	return nullptr;
@@ -151,6 +175,18 @@ UCharacterClassInfo* UAbilitySystemLibrary::GetCharacterClassInfo(const UObject*
 	}
 	
 	return RunesOfTheArchmageGameMode->CharacterClassInfo;
+}
+
+UAbilityInfo* UAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldObject)
+{
+	const ARunesOfTheArchmageGameModeBase* RunesOfTheArchmageGameMode = Cast<ARunesOfTheArchmageGameModeBase>(UGameplayStatics::GetGameMode(WorldObject));
+
+	if (!RunesOfTheArchmageGameMode)
+	{
+		return nullptr;
+	}
+	
+	return RunesOfTheArchmageGameMode->AbilityInfo;
 }
 
 int32 UAbilitySystemLibrary::GetExpRewardByClassAndLevel(const UObject* WorldObject, ECharacterClass CharacterClass,

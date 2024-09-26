@@ -41,6 +41,7 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.InputTag2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.2"));
 	Instance.InputTag3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.3"));
 	Instance.InputTag4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.4"));
+	Instance.InputTagPassive = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("InputTag.Passive"));
 
 	// event montages
 	Instance.EventMontageAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Montage.Attack"));
@@ -70,12 +71,23 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypePhysical, Instance.AttributesResistancesPhysical);
 
 	// abilities
+	Instance.Abilities_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.None")); // a null ability tag
+	
 	Instance.Abilities_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Fire"));
 	Instance.Abilities_FireStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.FireStorm"));
 	Instance.Abilities_Ice = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Ice"));
 	Instance.Abilities_IceStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.IceStorm"));
 	Instance.Abilities_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Thunder"));
 	Instance.Abilities_ThunderStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.ThunderStorm"));
+
+	Instance.Abilities_Status_Locked = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Locked"));
+	Instance.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Eligible"));
+	Instance.Abilities_Status_Unlocked = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Unlocked"));
+	Instance.Abilities_Status_Equipped = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Equipped"));
+
+	Instance.Abilities_Type_Offensive = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Type.Offensive"));
+	Instance.Abilities_Type_Passive = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Type.Passive"));
+	Instance.Abilities_Type_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Type.None"));
 
 	// cooldowns
 	Instance.Cooldown_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire"));

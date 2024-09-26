@@ -17,5 +17,10 @@ class RUNESOFTHEARCHMAGE_API UGameplayAbilityBase : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	FGameplayTag StartupInputTag;
-	
+
+	FString GetName() const;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	FString Name;
 };

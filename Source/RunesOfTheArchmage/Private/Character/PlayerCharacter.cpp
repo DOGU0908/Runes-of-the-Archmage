@@ -120,6 +120,11 @@ void APlayerCharacter::AddPlayerLevel_Implementation(int32 InPlayerLevel)
 	check(PlayerCharacterState);
 
 	PlayerCharacterState->AddLevel(InPlayerLevel);
+
+	if (UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		CharacterAbilitySystemComponent->UpdateAbilityStatus(PlayerCharacterState->GetCharacterLevel());
+	}
 }
 
 int32 APlayerCharacter::GetAttributePointsReward_Implementation(int32 Level) const

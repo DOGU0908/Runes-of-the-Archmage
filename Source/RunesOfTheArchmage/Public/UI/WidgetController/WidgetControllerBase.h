@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "WidgetControllerBase.generated.h"
 
+class UAbilityInfo;
 class UAttributeSet;
 class UAbilitySystemComponent;
+class UCharacterAbilitySystemComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoChanged, const FAbilityInfoData&, Info);
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -50,6 +52,11 @@ public:
 	virtual void BroadcastInitialValues();
 
 	virtual void BindCallbacksToDependencies();
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FOnAbilityInfoChanged OnAbilityInfoChanged;
+
+	void BroadcastAbilityInfo(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent) const;
 	
 protected:
 	UPROPERTY(BlueprintReadOnly, Category="Widget Controller")
@@ -63,5 +70,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="Widget Controller")
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
 	
 };

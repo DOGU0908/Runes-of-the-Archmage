@@ -6,6 +6,10 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystemLibrary.generated.h"
 
+class UAbilityInfo;
+class AHUDBase;
+struct FWidgetControllerParams;
+class USpellMenuWidgetController;
 class UCharacterClassInfo;
 struct FGameplayEffectContextHandle;
 class UAbilitySystemComponent;
@@ -22,10 +26,16 @@ class RUNESOFTHEARCHMAGE_API UAbilitySystemLibrary : public UBlueprintFunctionLi
 
 public:
 	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static bool MakeWidgetControllerParams(const UObject* WorldObject, FWidgetControllerParams& OutWidgetControllerParams, AHUDBase*& OutHUD);
+	
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldObject);
 
 	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldObject);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static USpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldObject);
 
 	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
 	static void InitializeDefaultAttributes(const UObject* WorldObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* AbilitySystemComponent);
@@ -44,6 +54,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
 	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldObject);
+
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
+	static UAbilityInfo* GetAbilityInfo(const UObject* WorldObject);
 
 	static int32 GetExpRewardByClassAndLevel(const UObject* WorldObject, ECharacterClass CharacterClass, int32 Level);
 	

@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/OverlayWidgetController.h"
 
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
@@ -76,6 +77,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		);
 
+		CharacterAbilitySystemComponent->OnAbilityEquipped.AddUObject(this, &UOverlayWidgetController::OnAbilityEquipped);
+
 		if (CharacterAbilitySystemComponent->bGivenStartupAbilities)
 		{
 			OnInitializeStartupAbilities(CharacterAbilitySystemComponent);
@@ -87,24 +90,9 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	}
 }
 
-void UOverlayWidgetController::OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent)
+void UOverlayWidgetController::OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent) const
 {
-	if (!CharacterAbilitySystemComponent->bGivenStartupAbilities)
-	{
-		return;
-	}
-
-	FForEachAbility AbilityDelegate;
-	AbilityDelegate.BindLambda(
-		[this, CharacterAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
-		{
-			FAbilityInfoData AbilityInfoData = AbilityInfo->FindAbilityInfoForTag(CharacterAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
-			// check the ability input tag
-			AbilityInfoData.InputTag = CharacterAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
-			OnAbilityInfoChanged.Broadcast(AbilityInfoData);
-		}
-	);
-	CharacterAbilitySystemComponent->ForEachAbility(AbilityDelegate);
+	BroadcastAbilityInfo(CharacterAbilitySystemComponent);
 }
 
 void UOverlayWidgetController::OnExpChanged(int32 NewExp) const
@@ -126,4 +114,21 @@ void UOverlayWidgetController::OnExpChanged(int32 NewExp) const
 		const float ExpBarPercent = static_cast<float>(ThisLevelExp) / static_cast<float>(ThisLevelUpRequirement);
 		OnExpPercentChanged.Broadcast(ExpBarPercent);
 	}
+}
+
+void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag,
+	const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag) const
+{
+	const FGameplayTagSingleton& GameplayTags = FGameplayTagSingleton::Get();
+
+	FAbilityInfoData LastInputSlotInfo;
+	LastInputSlotInfo.StatusTag = GameplayTags.Abilities_Status_Unlocked;
+	LastInputSlotInfo.InputTag = PrevInputTag;
+	LastInputSlotInfo.AbilityTag = GameplayTags.Abilities_None;
+	OnAbilityInfoChanged.Broadcast(LastInputSlotInfo);
+
+	FAbilityInfoData Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+	Info.StatusTag = StatusTag;
+	Info.InputTag = InputTag;
+	OnAbilityInfoChanged.Broadcast(Info);
 }

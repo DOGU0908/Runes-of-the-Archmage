@@ -6,6 +6,7 @@
 #include "UI/Widget/UserWidgetBase.h"
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "UI/WidgetController/SpellMenuWidgetController.h"
 
 UOverlayWidgetController* AHUDBase::GetOverlayWidgetController(const FWidgetControllerParams& WidgetControllerParams)
 {
@@ -30,6 +31,19 @@ UAttributeMenuWidgetController* AHUDBase::GetAttributeMenuWidgetController(
 	}
 
 	return AttributeMenuWidgetController;
+}
+
+USpellMenuWidgetController* AHUDBase::GetSpellMenuWidgetController(
+	const FWidgetControllerParams& WidgetControllerParams)
+{
+	if (!SpellMenuWidgetController)
+	{
+		SpellMenuWidgetController = NewObject<USpellMenuWidgetController>(this, SpellMenuWidgetControllerClass);
+		SpellMenuWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+		SpellMenuWidgetController->BindCallbacksToDependencies();
+	}
+
+	return SpellMenuWidgetController;
 }
 
 void AHUDBase::InitOverlay(APlayerController* PlayerController, APlayerState* PlayerState,

@@ -14,7 +14,6 @@ class UUserWidgetBase;
 struct FOnAttributeChangeData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnExpChanged, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoChanged, const FAbilityInfoData&, Info);
 
 USTRUCT(BlueprintType)
 struct FUIWidgetRow : public FTableRowBase
@@ -64,9 +63,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowDelegate MessageWidgetRowDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
-	FOnAbilityInfoChanged OnAbilityInfoChanged;
-
 	UPROPERTY(BlueprintAssignable, Category="GAS|Exp")
 	FOnExpChanged OnExpPercentChanged;
 
@@ -77,12 +73,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Data")
-	TObjectPtr<UAbilityInfo> AbilityInfo;
-
-	void OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent);
+	void OnInitializeStartupAbilities(UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent) const;
 
 	void OnExpChanged(int32 NewExp) const;
+
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag) const;
 	
 	// TODO: move to static library
 	template<class T>

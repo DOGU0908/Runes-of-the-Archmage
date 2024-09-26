@@ -3,3 +3,7 @@
 
 #include "AbilitySystem/Abilities/GameplayAbilityBase.h"
 
+FString UGameplayAbilityBase::GetName() const
+{
+	return Name;
+}
