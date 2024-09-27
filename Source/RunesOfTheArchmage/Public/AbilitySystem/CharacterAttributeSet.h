@@ -231,4 +231,6 @@ private:
 
 	bool bRestoreHealth = false;
 	bool bRestoreMana = false;
+
+	void HandleDebuff(const FEffectProperties& EffectProperties);
 };

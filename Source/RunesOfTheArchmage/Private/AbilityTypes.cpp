@@ -46,9 +46,29 @@ bool FGameplayEffectContextBase::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		{
 			RepBits |= 1 << 7;
 		}
+		if (bIsSuccessfulDebuff)
+		{
+			RepBits |= 1 << 8;
+		}
+		if (DebuffDamage > 0.f)
+		{
+			RepBits |= 1 << 9;
+		}
+		if (DebuffDuration > 0.f)
+		{
+			RepBits |= 1 << 10;
+		}
+		if (DebuffFrequency > 0.f)
+		{
+			RepBits |= 1 << 11;
+		}
+		if (DamageType.IsValid())
+		{
+			RepBits |= 1 << 12;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 8);
+	Ar.SerializeBits(&RepBits, 13);
 
 	if (RepBits & (1 << 0))
 	{
@@ -95,6 +115,33 @@ bool FGameplayEffectContextBase::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	{
 		Ar << bIsCriticalHit;
 	}
+	if (RepBits & (1 << 8))
+	{
+		Ar << bIsSuccessfulDebuff;
+	}
+	if (RepBits & (1 << 9))
+	{
+		Ar << DebuffDamage;
+	}
+	if (RepBits & (1 << 10))
+	{
+		Ar << DebuffDuration;
+	}
+	if (RepBits & (1 << 11))
+	{
+		Ar << DebuffFrequency;
+	}
+	if (RepBits & (1 << 12))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!DamageType.IsValid())
+			{
+				DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
+			}
+			DamageType->NetSerialize(Ar, Map, bOutSuccess);
+		}
+	}
 
 	if (Ar.IsLoading())
 	{
@@ -113,6 +160,31 @@ bool FGameplayEffectContextBase::IsCriticalHit() const
 void FGameplayEffectContextBase::SetIsCriticalHit(const bool bInIsCriticalHit)
 {
 	bIsCriticalHit = bInIsCriticalHit;
+}
+
+void FGameplayEffectContextBase::SetIsSuccessfulDebuff(const bool bInIsSuccessfulDebuff)
+{
+	bIsSuccessfulDebuff = bInIsSuccessfulDebuff;
+}
+
+void FGameplayEffectContextBase::SetDebuffDamage(const float InDebuffDamage)
+{
+	DebuffDamage = InDebuffDamage;
+}
+
+void FGameplayEffectContextBase::SetDebuffDuration(const float InDebuffDuration)
+{
+	DebuffDuration = InDebuffDuration;
+}
+
+void FGameplayEffectContextBase::SetDebuffFrequency(const float InDebuffFrequency)
+{
+	DebuffFrequency = InDebuffFrequency;
+}
+
+void FGameplayEffectContextBase::SetDamageType(const FGameplayTag& InDamageType)
+{
+	DamageType = MakeShared<FGameplayTag>(InDamageType);
 }
 
 FGameplayEffectContextBase* FGameplayEffectContextBase::Duplicate() const

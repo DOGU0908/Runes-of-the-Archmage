@@ -197,6 +197,7 @@ void APlayerCharacter::InitAbilityActorInfo()
 	Cast<UCharacterAbilitySystemComponent>(PlayerCharacterState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
 	AttributeSet = PlayerCharacterState->GetAttributeSet();
+	OnAbilitySystemComponentRegistered.Broadcast(AbilitySystemComponent);
 
 	// all 4 key variables to init hud is ensured to be initialized
 	// clients do not have valid player controllers for other characters

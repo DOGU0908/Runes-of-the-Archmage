@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+class UDebuffNiagaraComponent;
 class UGameplayAbility;
 class UGameplayEffect;
 class UAbilitySystemComponent;
@@ -40,6 +41,12 @@ public:
 
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 
+	FOnAbilitySystemComponentRegistered OnAbilitySystemComponentRegistered;
+	virtual FOnAbilitySystemComponentRegistered& GetOnAbilitySystemComponentRegisteredDelegate() override;
+
+	FOnDeath OnDeath;
+	virtual FOnDeath& GetOnDeathDelegate() override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -62,6 +69,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Class Defaults")
 	ECharacterClass CharacterClass = ECharacterClass::Melee;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystemLibrary.generated.h"
 
+struct FGameplayTag;
+struct FDamageEffectParams;
 class UAbilityInfo;
 class AHUDBase;
 struct FWidgetControllerParams;
@@ -45,6 +47,21 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
 	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static bool IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static float GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static float GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static float GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category="AbilitySystemLibrary")
+	static FGameplayTag GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle);
 
 	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
 	static void GetLiveCharactersWithinRadius(const UObject* WorldObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, const float Radius, const FVector& CenterLocation);
@@ -59,5 +76,8 @@ public:
 	static UAbilityInfo* GetAbilityInfo(const UObject* WorldObject);
 
 	static int32 GetExpRewardByClassAndLevel(const UObject* WorldObject, ECharacterClass CharacterClass, int32 Level);
+
+	UFUNCTION(BlueprintCallable, Category="AbilitySystemLibrary")
+	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams);
 	
 };

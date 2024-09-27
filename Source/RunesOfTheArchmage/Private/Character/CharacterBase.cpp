@@ -4,7 +4,9 @@
 #include "Character/CharacterBase.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
 
@@ -12,6 +14,10 @@ ACharacterBase::ACharacterBase()
 {
  	PrimaryActorTick.bCanEverTick = false;
 
+	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = FGameplayTagSingleton::Get().DebuffBurn;
+	
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
@@ -67,6 +73,18 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	bDead = true;
+	
+	OnDeath.Broadcast(this);
+}
+
+FOnAbilitySystemComponentRegistered& ACharacterBase::GetOnAbilitySystemComponentRegisteredDelegate()
+{
+	return OnAbilitySystemComponentRegistered;
+}
+
+FOnDeath& ACharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
 }
 
 void ACharacterBase::BeginPlay()

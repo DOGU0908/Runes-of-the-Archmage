@@ -53,15 +53,15 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefs;
-	const FGameplayTagSingleton& Tags = FGameplayTagSingleton::Get();
+	const FGameplayTagSingleton& GameplayTags = FGameplayTagSingleton::Get();
 		
-	TagsToCaptureDefs.Add(Tags.AttributesSecondaryArmor, GetDamageStatics().ArmorDef);
-	TagsToCaptureDefs.Add(Tags.AttributesSecondaryCriticalChance, GetDamageStatics().CriticalChanceDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesSecondaryArmor, GetDamageStatics().ArmorDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesSecondaryCriticalChance, GetDamageStatics().CriticalChanceDef);
 
-	TagsToCaptureDefs.Add(Tags.AttributesResistancesFire, GetDamageStatics().FireResistanceDef);
-	TagsToCaptureDefs.Add(Tags.AttributesResistancesIce, GetDamageStatics().IceResistanceDef);
-	TagsToCaptureDefs.Add(Tags.AttributesResistancesThunder, GetDamageStatics().ThunderResistanceDef);
-	TagsToCaptureDefs.Add(Tags.AttributesResistancesPhysical, GetDamageStatics().PhysicalResistanceDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesFire, GetDamageStatics().FireResistanceDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesIce, GetDamageStatics().IceResistanceDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesThunder, GetDamageStatics().ThunderResistanceDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesPhysical, GetDamageStatics().PhysicalResistanceDef);
 	
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FGameplayEffectContextBase* GameplayEffectContext = static_cast<FGameplayEffectContextBase*>(Spec.GetContext().Get());
@@ -70,8 +70,40 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	AggregatorEvaluateParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	AggregatorEvaluateParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
+	// check debuff
+	for (const auto& Pair: GameplayTags.DamageTypesToDebuffs)
+	{
+		const FGameplayTag& DamageType = Pair.Key;
+		const FGameplayTag& DebuffType = Pair.Value;
+		
+		// -1.f is no damage, not healing
+		if (Spec.GetSetByCallerMagnitude(DamageType, false, -1.f) >= 0.f)
+		{
+			const float SourceDebuffChance = Spec.GetSetByCallerMagnitude(GameplayTags.DebuffPropertyChance, false, -1.f);
+
+			float TargetDebuffResistance = 0.f;
+			ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(TagsToCaptureDefs[GameplayTags.DamageTypesToResistances[DamageType]], AggregatorEvaluateParameters, TargetDebuffResistance);
+			TargetDebuffResistance = FMath::Max<float>(TargetDebuffResistance, 0.f);
+			const float EffectiveDebuffChance = SourceDebuffChance * (1.f - TargetDebuffResistance / 100.f);
+
+			if (FMath::RandRange(1, 100) < EffectiveDebuffChance)
+			{
+				GameplayEffectContext->SetIsSuccessfulDebuff(true);
+				GameplayEffectContext->SetDamageType(DamageType);
+
+				const float DebuffDamage = Spec.GetSetByCallerMagnitude(GameplayTags.DebuffPropertyDamage, false, -1.f);
+				const float DebuffDuration = Spec.GetSetByCallerMagnitude(GameplayTags.DebuffPropertyDuration, false, -1.f);
+				const float DebuffFrequency = Spec.GetSetByCallerMagnitude(GameplayTags.DebuffPropertyFrequency, false, -1.f);
+
+				GameplayEffectContext->SetDebuffDamage(DebuffDamage);
+				GameplayEffectContext->SetDebuffDuration(DebuffDuration);
+				GameplayEffectContext->SetDebuffFrequency(DebuffFrequency);
+			}
+		}
+	}
+
 	float Damage = 0.f;
-	for (const auto& Pair: FGameplayTagSingleton::Get().DamageTypesToResistances)
+	for (const auto& Pair: GameplayTags.DamageTypesToResistances)
 	{
 		checkf(TagsToCaptureDefs.Contains(Pair.Value), TEXT("TagsToCaptureDefs does not contain the tag"));
 

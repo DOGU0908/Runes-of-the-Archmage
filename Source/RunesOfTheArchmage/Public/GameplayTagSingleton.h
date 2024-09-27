@@ -72,6 +72,18 @@ public:
 	FGameplayTag AttributesResistancesThunder;
 	FGameplayTag AttributesResistancesPhysical;
 
+	// debuffs
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
+	FGameplayTag DebuffBurn;
+	FGameplayTag DebuffFreeze;
+	FGameplayTag DebuffStun;
+	FGameplayTag DebuffBleeding;
+
+	FGameplayTag DebuffPropertyChance;
+	FGameplayTag DebuffPropertyDamage;
+	FGameplayTag DebuffPropertyDuration;
+	FGameplayTag DebuffPropertyFrequency;
+
 	// abilities
 	FGameplayTag Abilities_None;
 	

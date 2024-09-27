@@ -5,16 +5,28 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AbilitySystemLibrary.h"
 
 void UGameplayAbilityDamage::CauseDamage(AActor* TargetActor)
 {
-	const FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, 1.f);
+	UAbilitySystemLibrary::ApplyDamageEffect(MakeDamageEffectParams(TargetActor));
+}
 
-	for (auto& Pair: DamageTypes)
-	{
-		const float DamageMagnitude = Pair.Value.GetValueAtLevel(GetAbilityLevel());
-		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, Pair.Key, DamageMagnitude);
-	}
+FDamageEffectParams UGameplayAbilityDamage::MakeDamageEffectParams(AActor* TargetActor) const
+{
+	FDamageEffectParams DamageEffectParams;
 
-	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
+	DamageEffectParams.WorldObject = GetAvatarActorFromActorInfo();
+	DamageEffectParams.DamageGameplayEffectClass = DamageEffectClass;
+	DamageEffectParams.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
+	DamageEffectParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	DamageEffectParams.BaseDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	DamageEffectParams.AbilityLevel = GetAbilityLevel();
+	DamageEffectParams.DamageType = DamageType;
+	DamageEffectParams.DebuffChance = DebuffChance;
+	DamageEffectParams.DebuffDamage = DebuffDamage;
+	DamageEffectParams.DebuffDuration = DebuffDuration;
+	DamageEffectParams.DebuffFrequency = DebuffFrequency;
+
+	return DamageEffectParams;
 }

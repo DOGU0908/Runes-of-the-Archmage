@@ -70,6 +70,23 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypeThunder, Instance.AttributesResistancesThunder);
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypePhysical, Instance.AttributesResistancesPhysical);
 
+	// debuffs
+	Instance.DebuffBurn = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Burn"));
+	Instance.DebuffFreeze = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Freeze"));
+	Instance.DebuffStun = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Stun"));
+	Instance.DebuffBleeding = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Bleeding"));
+
+	Instance.DebuffPropertyChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Property.Chance"));
+	Instance.DebuffPropertyDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Property.Damage"));
+	Instance.DebuffPropertyDuration = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Property.Duration"));
+	Instance.DebuffPropertyFrequency = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Property.Frequency"));
+	
+	// map of damage type to debuffs
+	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeFire, Instance.DebuffBurn);
+	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeIce, Instance.DebuffFreeze);
+	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeThunder, Instance.DebuffStun);
+	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypePhysical, Instance.DebuffBleeding);
+
 	// abilities
 	Instance.Abilities_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.None")); // a null ability tag
 	

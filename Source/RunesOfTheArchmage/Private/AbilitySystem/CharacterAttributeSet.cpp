@@ -4,6 +4,7 @@
 #include "AbilitySystem/CharacterAttributeSet.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilityTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "GameplayTagSingleton.h"
@@ -12,6 +13,7 @@
 #include "Character/PlayerInterface.h"
 #include "Combat/CombatInterface.h"
 #include "GameFramework/Character.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
 UCharacterAttributeSet::UCharacterAttributeSet()
 {
@@ -92,6 +94,14 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	FEffectProperties EffectProperties;
 	SetEffectProperties(Data, EffectProperties);
 
+	if (EffectProperties.TargetCharacter->Implements<UCombatInterface>())
+	{
+		if (ICombatInterface::Execute_IsDead(EffectProperties.TargetCharacter))
+		{
+			return;
+		}
+	}
+
 	// can use ability system component, actor, character controller ... to implement post gameplay effect application logic
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
@@ -132,6 +142,11 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 			}
 
 			ShowFloatingText(EffectProperties, LocalIncomingDamage, UAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle));
+
+			if (UAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+			{
+				HandleDebuff(EffectProperties);
+			}
 		}
 	}
 
@@ -354,5 +369,53 @@ void UCharacterAttributeSet::SendExpEvent(const FEffectProperties& EffectPropert
 		Payload.EventTag = FGameplayTagSingleton::Get().AttributesMetaIncomingExp;
 		Payload.EventMagnitude = ExpReward;
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(EffectProperties.SourceCharacter, FGameplayTagSingleton::Get().AttributesMetaIncomingExp, Payload);
+	}
+}
+
+void UCharacterAttributeSet::HandleDebuff(const FEffectProperties& EffectProperties)
+{
+	const FGameplayTagSingleton& GameplayTags = FGameplayTagSingleton::Get();
+	FGameplayEffectContextHandle EffectContextHandle = EffectProperties.SourceAbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(EffectProperties.SourceAvatarActor);
+
+	const FGameplayTag DamageType = UAbilitySystemLibrary::GetDamageType(EffectProperties.EffectContextHandle);
+	const float DebuffDamage = UAbilitySystemLibrary::GetDebuffDamage(EffectProperties.EffectContextHandle);
+	const float DebuffDuration = UAbilitySystemLibrary::GetDebuffDuration(EffectProperties.EffectContextHandle);
+	const float DebuffFrequency = UAbilitySystemLibrary::GetDebuffFrequency(EffectProperties.EffectContextHandle);
+	
+	const FString DebuffName = FString::Printf(TEXT("Debuff %s"), *DamageType.ToString());
+	// dynamic gameplay effects are not replicated
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
+
+	// effect duration
+	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	Effect->Period = DebuffFrequency;
+	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
+
+	// effect tag
+	FInheritedTagContainer TagContainer = FInheritedTagContainer();
+	UTargetTagsGameplayEffectComponent& TargetTagsGameplayEffectComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
+	TagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	TargetTagsGameplayEffectComponent.SetAndApplyTargetTagChanges(TagContainer);
+
+	// effect stacking
+	Effect->StackingType = EGameplayEffectStackingType::AggregateByTarget;
+	Effect->StackLimitCount = 1;
+
+	// effect modifiers
+	int32 ModifierIndex = Effect->Modifiers.Num();
+	Effect->Modifiers.Add(FGameplayModifierInfo());
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[ModifierIndex];
+	ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+	ModifierInfo.Attribute = GetIncomingDamageAttribute();
+
+	// apply gameplay effect
+	if (FGameplayEffectSpec* Spec = new FGameplayEffectSpec(Effect, EffectContextHandle, 1.f))
+	{
+		FGameplayEffectContextBase* EffectContext = static_cast<FGameplayEffectContextBase*>(Spec->GetContext().Get());
+		EffectContext->SetDamageType(DamageType);
+
+		EffectProperties.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec);
 	}
 }

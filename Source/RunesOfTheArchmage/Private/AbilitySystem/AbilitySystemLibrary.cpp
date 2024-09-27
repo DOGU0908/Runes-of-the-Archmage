@@ -3,8 +3,10 @@
 
 #include "AbilitySystem/AbilitySystemLibrary.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilityTypes.h"
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Character/PlayerCharacterState.h"
 #include "Combat/CombatInterface.h"
@@ -136,9 +138,62 @@ bool UAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& Ef
 	return false;
 }
 
+bool UAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		return EffectContext->IsSuccessfulDebuff();
+	}
+
+	return false;
+}
+
+float UAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		return EffectContext->GetDebuffDamage();
+	}
+
+	return 0.f;
+}
+
+float UAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		return EffectContext->GetDebuffDuration();
+	}
+
+	return 0.f;
+}
+
+float UAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		return EffectContext->GetDebuffFrequency();
+	}
+
+	return 0.f;
+}
+
+FGameplayTag UAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FGameplayEffectContextBase* EffectContext = static_cast<const FGameplayEffectContextBase*>(EffectContextHandle.Get()))
+	{
+		if (EffectContext->GetDamageType().IsValid())
+		{
+			return *EffectContext->GetDamageType();
+		}
+	}
+
+	return FGameplayTag();
+}
+
 void UAbilitySystemLibrary::GetLiveCharactersWithinRadius(const UObject* WorldObject,
-	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, const float Radius,
-	const FVector& CenterLocation)
+                                                          TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, const float Radius,
+                                                          const FVector& CenterLocation)
 {
 	// from UGameplayStatics::ApplyRadialDamageWithFalloff
 	FCollisionQueryParams SphereParams;
@@ -202,4 +257,24 @@ int32 UAbilitySystemLibrary::GetExpRewardByClassAndLevel(const UObject* WorldObj
 	const float ExpReward = ClassDefaultInfo.ExpReward.GetValueAtLevel(Level);
 
 	return static_cast<int32>(ExpReward);
+}
+
+FGameplayEffectContextHandle UAbilitySystemLibrary::ApplyDamageEffect(
+	const FDamageEffectParams& DamageEffectParams)
+{
+	const FGameplayTagSingleton GameplayTags = FGameplayTagSingleton::Get();
+	FGameplayEffectContextHandle EffectContextHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor());
+	
+	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContextHandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.DebuffPropertyChance, DamageEffectParams.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.DebuffPropertyDamage, DamageEffectParams.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.DebuffPropertyDuration, DamageEffectParams.DebuffDuration);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.DebuffPropertyFrequency, DamageEffectParams.DebuffFrequency);
+	
+	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+	return EffectContextHandle;
 }

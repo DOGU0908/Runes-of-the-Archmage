@@ -168,8 +168,8 @@ void USpellMenuWidgetController::BroadcastSpellButtonClickedDelegate(const int32
 	SelectedAbility.AbilityTag = AbilityTag;
 	SelectedAbility.StatusTag = StatusTag;
 
-	FString Name;
-	int32 Level;
+	FString Name = FString();
+	int32 Level = 0;
 	if (UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent))
 	{
 		CharacterAbilitySystemComponent->GetInfoByAbilityTag(AbilityTag, Name, Level);
