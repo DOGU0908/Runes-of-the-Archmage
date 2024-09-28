@@ -55,7 +55,12 @@ void UCharacterAbilitySystemComponent::AbilityPressedByInputTag(const FGameplayT
 	{
 		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
-			// TODO: do certain tasks?
+			AbilitySpecInputPressed(ActivatableAbilitySpec);
+			if (!ActivatableAbilitySpec.IsActive())
+			{
+				// replicate the input pressed event
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, ActivatableAbilitySpec.Handle, ActivatableAbilitySpec.ActivationInfo.GetActivationPredictionKey());
+			}
 		}
 	}
 }
@@ -89,9 +94,12 @@ void UCharacterAbilitySystemComponent::AbilityReleasedByInputTag(const FGameplay
 
 	for (auto& ActivatableAbilitySpec: GetActivatableAbilities())
 	{
-		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && ActivatableAbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(ActivatableAbilitySpec);
+			// replicate the input released event
+			// this enables adding abilities that needs to know when the input is released in multiplayer
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, ActivatableAbilitySpec.Handle, ActivatableAbilitySpec.ActivationInfo.GetActivationPredictionKey());
 		}
 	}
 }
