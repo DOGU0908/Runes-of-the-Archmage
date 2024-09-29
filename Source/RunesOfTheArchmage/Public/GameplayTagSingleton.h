@@ -111,6 +111,9 @@ public:
 	FGameplayTag Cooldown_Thunder;
 	FGameplayTag Cooldown_ThunderStorm;
 
+	// player ability block tags
+	FGameplayTag Player_Block_AbilityActivation;
+
 private:
 	static FGameplayTagSingleton Instance;
 	

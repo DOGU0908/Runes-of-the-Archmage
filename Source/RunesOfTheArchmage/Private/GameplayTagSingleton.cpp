@@ -113,4 +113,7 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.Cooldown_IceStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.IceStorm"));
 	Instance.Cooldown_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Thunder"));
 	Instance.Cooldown_ThunderStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.ThunderStorm"));
+
+	// player ability block tags
+	Instance.Player_Block_AbilityActivation = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Player.Block.AbilityActivation"));
 }

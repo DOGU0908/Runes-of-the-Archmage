@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "Input/CharacterInputComponent.h"
 #include "Interaction/InteractionInterface.h"
@@ -124,7 +125,7 @@ void APlayerCharacterController::TraceCursor()
 
 void APlayerCharacterController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	if (!GetAbilitySystemComponent())
+	if (!GetAbilitySystemComponent() || GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTagSingleton::Get().Player_Block_AbilityActivation))
 	{
 		return;
 	}
@@ -144,7 +145,7 @@ void APlayerCharacterController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void APlayerCharacterController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (!GetAbilitySystemComponent())
+	if (!GetAbilitySystemComponent() || GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTagSingleton::Get().Player_Block_AbilityActivation))
 	{
 		return;
 	}
