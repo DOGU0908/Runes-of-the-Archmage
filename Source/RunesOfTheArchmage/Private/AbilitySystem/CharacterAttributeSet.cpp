@@ -167,10 +167,17 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 				const int32 NumLevelUp = NewLevel - CurrentLevel;
 				if (NumLevelUp > 0)
 				{
-					const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(EffectProperties.SourceCharacter, CurrentLevel);
-					const int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(EffectProperties.SourceCharacter, CurrentLevel);
-					
 					IPlayerInterface::Execute_AddPlayerLevel(EffectProperties.SourceCharacter, NumLevelUp);
+					
+					int32 AttributePointsReward = 0;
+					int32 SpellPointsReward = 0;
+
+					for (int32 i = CurrentLevel; i < NewLevel; ++i)
+					{
+						AttributePointsReward += IPlayerInterface::Execute_GetAttributePointsReward(EffectProperties.SourceCharacter, i);
+						SpellPointsReward += IPlayerInterface::Execute_GetSpellPointsReward(EffectProperties.SourceCharacter, CurrentLevel);
+					}
+					
 					IPlayerInterface::Execute_AddAttributePoints(EffectProperties.SourceCharacter, AttributePointsReward);
 					IPlayerInterface::Execute_AddSpellPoints(EffectProperties.SourceCharacter, SpellPointsReward);
 
