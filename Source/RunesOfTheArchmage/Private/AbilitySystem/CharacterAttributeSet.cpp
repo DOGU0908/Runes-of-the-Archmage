@@ -396,6 +396,10 @@ void UCharacterAttributeSet::HandleDebuff(const FEffectProperties& EffectPropert
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& TargetTagsGameplayEffectComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
 	TagContainer.Added.AddTag(GameplayTags.DamageTypesToDebuffs[DamageType]);
+	if (GameplayTags.DamageTypesToDebuffs[DamageType].MatchesTagExact(GameplayTags.DebuffFreeze))
+	{
+		TagContainer.Added.AddTag(GameplayTags.Player_Block_AbilityActivation);
+	}
 	TargetTagsGameplayEffectComponent.SetAndApplyTargetTagChanges(TagContainer);
 
 	// effect stacking
@@ -411,11 +415,38 @@ void UCharacterAttributeSet::HandleDebuff(const FEffectProperties& EffectPropert
 	ModifierInfo.Attribute = GetIncomingDamageAttribute();
 
 	// apply gameplay effect
-	if (FGameplayEffectSpec* Spec = new FGameplayEffectSpec(Effect, EffectContextHandle, 1.f))
+	ApplyDebuff(*Effect, EffectContextHandle, DamageType, EffectProperties.TargetAbilitySystemComponent);
+
+	if (GameplayTags.DamageTypesToDebuffs[DamageType].MatchesTagExact(GameplayTags.DebuffShock))
+	{
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(EffectProperties.SourceCharacter);
+		ActorsToIgnore.Add(EffectProperties.TargetCharacter);
+
+		TArray<AActor*> OverlappingActors;
+		UAbilitySystemLibrary::GetLiveCharactersWithinRadius(EffectProperties.TargetCharacter, OverlappingActors, ActorsToIgnore, 850.f, EffectProperties.TargetCharacter->GetActorLocation());
+
+		for (const auto& Actor: OverlappingActors)
+		{
+			if (!UAbilitySystemLibrary::IsNotFriendlyUnit(Actor, EffectProperties.TargetCharacter))
+			{
+				if (UAbilitySystemComponent* ActorAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Actor))
+				{
+					ApplyDebuff(*Effect, EffectContextHandle, DamageType, ActorAbilitySystemComponent);
+				}
+			}
+		}
+	}
+}
+
+void UCharacterAttributeSet::ApplyDebuff(const UGameplayEffect& Effect,
+	const FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag DamageType, UAbilitySystemComponent* TargetAbilitySystemComponent)
+{
+	if (const FGameplayEffectSpec* Spec = new FGameplayEffectSpec(&Effect, EffectContextHandle, 1.f))
 	{
 		FGameplayEffectContextBase* EffectContext = static_cast<FGameplayEffectContextBase*>(Spec->GetContext().Get());
 		EffectContext->SetDamageType(DamageType);
 
-		EffectProperties.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec);
+		TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec);
 	}
 }

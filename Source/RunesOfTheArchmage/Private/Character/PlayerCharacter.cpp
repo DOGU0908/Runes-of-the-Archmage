@@ -4,6 +4,7 @@
 #include "Character/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "GameplayTagSingleton.h"
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Character/PlayerCharacterController.h"
@@ -11,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/HUD/HUDBase.h"
 #include "NiagaraComponent.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -175,6 +177,52 @@ int32 APlayerCharacter::GetSpellPoints_Implementation() const
 	return PlayerCharacterState->GetSpellPoints();
 }
 
+void APlayerCharacter::OnRep_Burn() const
+{
+	if (bIsBurn)
+	{
+		BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		BurnDebuffComponent->Deactivate();
+	}
+}
+
+void APlayerCharacter::OnRep_Shock() const
+{
+	if (bIsShock)
+	{
+		ShockDebuffComponent->Activate();
+	}
+	else
+	{
+		ShockDebuffComponent->Deactivate();
+	}
+}
+
+void APlayerCharacter::OnRep_Frozen()
+{
+	Super::OnRep_Frozen();
+	
+	if (UCharacterAbilitySystemComponent* CharacterAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(FGameplayTagSingleton::Get().Player_Block_AbilityActivation);
+
+		if (bIsFrozen)
+		{
+			CharacterAbilitySystemComponent->AddLooseGameplayTags(BlockedTags);
+			FreezeDebuffComponent->Activate();
+		}
+		else
+		{
+			CharacterAbilitySystemComponent->RemoveLooseGameplayTags(BlockedTags);
+			FreezeDebuffComponent->Deactivate();
+		}
+	}
+}
+
 /*
  * Player Controlled Character
  * 1. When Ability System Component is inside the Pawn
@@ -198,7 +246,12 @@ void APlayerCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = PlayerCharacterState->GetAbilitySystemComponent();
 	AttributeSet = PlayerCharacterState->GetAttributeSet();
 	OnAbilitySystemComponentRegistered.Broadcast(AbilitySystemComponent);
-
+	
+	const FGameplayTagSingleton& GameplayTags = FGameplayTagSingleton::Get();
+	AbilitySystemComponent->RegisterGameplayTagEvent(GameplayTags.DebuffBurn, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APlayerCharacter::BurnTagChanged);
+	AbilitySystemComponent->RegisterGameplayTagEvent(GameplayTags.DebuffShock, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APlayerCharacter::ShockTagChanged);
+	AbilitySystemComponent->RegisterGameplayTagEvent(GameplayTags.DebuffFreeze, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &APlayerCharacter::FreezeTagChanged);
+	
 	// all 4 key variables to init hud is ensured to be initialized
 	// clients do not have valid player controllers for other characters
 	if (APlayerCharacterController* PlayerCharacterController = Cast<APlayerCharacterController>(GetController()))

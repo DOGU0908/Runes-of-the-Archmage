@@ -40,9 +40,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Hit")
 	bool bHitReacting = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Movement")
-	float BaseWalkSpeed = 250.f;
-
 	virtual void Die() override;
 
 	virtual void MulticastHandleDeath_Implementation() override;
@@ -52,6 +49,8 @@ public:
 
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() override;
+
+	virtual void FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 	
 protected:
 	virtual void BeginPlay() override;

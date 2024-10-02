@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "Combat/CombatInterface.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+struct FGameplayTag;
 class UDebuffNiagaraComponent;
 class UGameplayAbility;
 class UGameplayEffect;
@@ -22,6 +24,8 @@ class RUNESOFTHEARCHMAGE_API ACharacterBase : public ACharacter, public IAbility
 
 public:
 	ACharacterBase();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
@@ -44,8 +48,34 @@ public:
 	FOnAbilitySystemComponentRegistered OnAbilitySystemComponentRegistered;
 	virtual FOnAbilitySystemComponentRegistered& GetOnAbilitySystemComponentRegisteredDelegate() override;
 
-	FOnDeath OnDeath;
-	virtual FOnDeath& GetOnDeathDelegate() override;
+	virtual void BurnTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	virtual void ShockTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	// freeze tag is required to stop enemy behavior tree, so it should be bound to enemy ability system component gameplay tag event
+	virtual void FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Movement")
+	float BaseWalkSpeed = 600.f;
+
+	// debuff effects not replicated for player character
+	// this is mainly because only enemies are replicating ability system component
+	// use boolean variables to set the state of debuff to display niagara effect
+	UPROPERTY(ReplicatedUsing=OnRep_Burn, BlueprintReadOnly)
+	bool bIsBurn = false;
+
+	UFUNCTION()
+	virtual void OnRep_Burn() const;
+
+	UPROPERTY(ReplicatedUsing=OnRep_Shock, BlueprintReadOnly)
+	bool bIsShock = false;
+
+	UFUNCTION()
+	virtual void OnRep_Shock() const;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_Frozen, BlueprintReadOnly)
+	bool bIsFrozen = false;
+
+	UFUNCTION()
+	virtual void OnRep_Frozen();
 
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +102,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> ShockDebuffComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> FreezeDebuffComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Abilities")

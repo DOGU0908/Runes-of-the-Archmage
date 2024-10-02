@@ -8,6 +8,8 @@
 #include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
 
 ACharacterBase::ACharacterBase()
@@ -17,10 +19,27 @@ ACharacterBase::ACharacterBase()
 	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = FGameplayTagSingleton::Get().DebuffBurn;
+
+	ShockDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("ShockDebuffComponent");
+	ShockDebuffComponent->SetupAttachment(GetRootComponent());
+	ShockDebuffComponent->DebuffTag = FGameplayTagSingleton::Get().DebuffShock;
+
+	FreezeDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("FreezeDebuffComponent");
+	FreezeDebuffComponent->SetupAttachment(GetRootComponent());
+	FreezeDebuffComponent->DebuffTag = FGameplayTagSingleton::Get().DebuffFreeze;
 	
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
+}
+
+void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterBase, bIsBurn);
+	DOREPLIFETIME(ACharacterBase, bIsShock);
+	DOREPLIFETIME(ACharacterBase, bIsFrozen);
 }
 
 UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
@@ -65,6 +84,10 @@ ECharacterClass ACharacterBase::GetCharacterClass_Implementation()
 
 void ACharacterBase::MulticastHandleDeath_Implementation()
 {
+	BurnDebuffComponent->Deactivate();
+	ShockDebuffComponent->Deactivate();
+	FreezeDebuffComponent->Deactivate();
+	
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -73,8 +96,6 @@ void ACharacterBase::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	bDead = true;
-	
-	OnDeath.Broadcast(this);
 }
 
 FOnAbilitySystemComponentRegistered& ACharacterBase::GetOnAbilitySystemComponentRegisteredDelegate()
@@ -82,15 +103,39 @@ FOnAbilitySystemComponentRegistered& ACharacterBase::GetOnAbilitySystemComponent
 	return OnAbilitySystemComponentRegistered;
 }
 
-FOnDeath& ACharacterBase::GetOnDeathDelegate()
+void ACharacterBase::BurnTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	return OnDeath;
+	bIsBurn = NewCount > 0;
+}
+
+void ACharacterBase::ShockTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsShock = NewCount > 0;
+}
+
+void ACharacterBase::FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsFrozen = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsFrozen ? 0.f : BaseWalkSpeed;
+}
+
+void ACharacterBase::OnRep_Burn() const
+{
+}
+
+void ACharacterBase::OnRep_Shock() const
+{
+}
+
+void ACharacterBase::OnRep_Frozen()
+{
 }
 
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 }
 
 void ACharacterBase::InitAbilityActorInfo()

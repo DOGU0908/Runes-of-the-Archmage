@@ -10,7 +10,6 @@ class UAbilitySystemComponent;
 enum class ECharacterClass : uint8;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilitySystemComponentRegistered, UAbilitySystemComponent*);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
@@ -54,5 +53,4 @@ public:
 	ECharacterClass GetCharacterClass();
 
 	virtual FOnAbilitySystemComponentRegistered& GetOnAbilitySystemComponentRegisteredDelegate() = 0;
-	virtual FOnDeath& GetOnDeathDelegate() = 0;
 };

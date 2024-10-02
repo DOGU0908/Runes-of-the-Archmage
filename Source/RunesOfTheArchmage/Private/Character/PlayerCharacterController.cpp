@@ -79,6 +79,11 @@ void APlayerCharacterController::SetupInputComponent()
 
 void APlayerCharacterController::Move(const FInputActionValue& InputActionValue)
 {
+	if (!GetAbilitySystemComponent() || GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTagSingleton::Get().Player_Block_AbilityActivation))
+	{
+		return;
+	}
+	
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
 	
 	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);

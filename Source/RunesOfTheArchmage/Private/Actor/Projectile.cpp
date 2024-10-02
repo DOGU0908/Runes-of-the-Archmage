@@ -37,6 +37,7 @@ void AProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	SetLifeSpan(LifeSpan);
+	SetReplicateMovement(true);
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnSphereOverlap);
 	
@@ -57,6 +58,11 @@ void AProjectile::Destroyed()
 void AProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!DamageEffectParams.SourceAbilitySystemComponent)
+	{
+		return;
+	}
+	
 	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
 	// prevent the shooter to generate sphere overlap event
 	// if the enemy also has a projectile ability, this is important

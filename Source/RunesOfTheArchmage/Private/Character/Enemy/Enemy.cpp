@@ -32,6 +32,8 @@ AEnemy::AEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+
+	BaseWalkSpeed = 250.f;
 }
 
 void AEnemy::PossessedBy(AController* NewController)
@@ -110,10 +112,20 @@ AActor* AEnemy::GetCombatTarget_Implementation()
 	return CombatTarget;
 }
 
+void AEnemy::FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::FreezeTagChanged(CallbackTag, NewCount);
+
+	// no movement while frozen
+	if (AIController && AIController->GetBlackboardComponent())
+	{
+		AIController->GetBlackboardComponent()->SetValueAsBool(FName("Frozen"), bIsFrozen);
+	}
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	// initialize abilities and attributes only on server for the enemy
 	InitAbilityActorInfo();
@@ -154,6 +166,7 @@ void AEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<UCharacterAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	AbilitySystemComponent->RegisterGameplayTagEvent(FGameplayTagSingleton::Get().DebuffFreeze, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AEnemy::FreezeTagChanged);
 
 	if (HasAuthority())
 	{

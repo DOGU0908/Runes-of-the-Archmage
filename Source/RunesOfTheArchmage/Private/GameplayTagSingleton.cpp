@@ -73,7 +73,7 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	// debuffs
 	Instance.DebuffBurn = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Burn"));
 	Instance.DebuffFreeze = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Freeze"));
-	Instance.DebuffStun = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Stun"));
+	Instance.DebuffShock = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Stun"));
 	Instance.DebuffBleeding = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Bleeding"));
 
 	Instance.DebuffPropertyChance = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Property.Chance"));
@@ -84,7 +84,7 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	// map of damage type to debuffs
 	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeFire, Instance.DebuffBurn);
 	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeIce, Instance.DebuffFreeze);
-	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeThunder, Instance.DebuffStun);
+	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypeThunder, Instance.DebuffShock);
 	Instance.DamageTypesToDebuffs.Add(Instance.DamageTypePhysical, Instance.DebuffBleeding);
 
 	// abilities

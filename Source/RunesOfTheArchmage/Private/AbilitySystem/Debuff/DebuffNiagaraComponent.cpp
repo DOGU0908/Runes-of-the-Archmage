@@ -15,13 +15,12 @@ UDebuffNiagaraComponent::UDebuffNiagaraComponent()
 void UDebuffNiagaraComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwner());
+	
 	if (UAbilitySystemComponent* AbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
 	{
 		AbilitySystemComponent->RegisterGameplayTagEvent(DebuffTag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDebuffNiagaraComponent::DebuffTagChanged);
 	}
-	else if (CombatInterface)
+	else if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwner()))
 	{
 		// weak lambda will not have reference count change in garbage collection
 		CombatInterface->GetOnAbilitySystemComponentRegisteredDelegate().AddWeakLambda(this,
@@ -30,11 +29,6 @@ void UDebuffNiagaraComponent::BeginPlay()
 				InAbilitySystemComponent->RegisterGameplayTagEvent(DebuffTag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDebuffNiagaraComponent::DebuffTagChanged);
 			}
 		);
-	}
-
-	if (CombatInterface)
-	{
-		CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UDebuffNiagaraComponent::OnOwnerDeath);
 	}
 }
 
@@ -48,9 +42,4 @@ void UDebuffNiagaraComponent::DebuffTagChanged(const FGameplayTag CallbackTag, i
 	{
 		Deactivate();
 	}
-}
-
-void UDebuffNiagaraComponent::OnOwnerDeath(AActor* DeadActor)
-{
-	Deactivate();
 }

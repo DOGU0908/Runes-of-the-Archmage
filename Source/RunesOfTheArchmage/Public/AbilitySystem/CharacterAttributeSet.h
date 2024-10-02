@@ -233,4 +233,6 @@ private:
 	bool bRestoreMana = false;
 
 	void HandleDebuff(const FEffectProperties& EffectProperties);
+
+	static void ApplyDebuff(const UGameplayEffect& Effect, const FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag DamageType, UAbilitySystemComponent* TargetAbilitySystemComponent);
 };

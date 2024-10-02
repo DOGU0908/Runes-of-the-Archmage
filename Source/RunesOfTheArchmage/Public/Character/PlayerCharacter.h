@@ -43,6 +43,10 @@ public:
 	virtual int32 GetAttributePoints_Implementation() const override;
 	virtual int32 GetSpellPoints_Implementation() const override;
 
+	virtual void OnRep_Burn() const override;
+	virtual void OnRep_Shock() const override;
+	virtual void OnRep_Frozen() override;
+
 protected:
 	virtual void InitAbilityActorInfo() override;
 

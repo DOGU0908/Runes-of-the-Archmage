@@ -76,7 +76,7 @@ public:
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
 	FGameplayTag DebuffBurn;
 	FGameplayTag DebuffFreeze;
-	FGameplayTag DebuffStun;
+	FGameplayTag DebuffShock;
 	FGameplayTag DebuffBleeding;
 
 	FGameplayTag DebuffPropertyChance;
