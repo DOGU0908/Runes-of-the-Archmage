@@ -66,6 +66,12 @@ void UCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, IceResistance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, ThunderResistance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
+
+	// damage bonus
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, FireBonus, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, IceBonus, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, ThunderBonus, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCharacterAttributeSet, PhysicalBonus, COND_None, REPNOTIFY_Always);
 }
 
 void UCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -306,6 +312,26 @@ void UCharacterAttributeSet::OnRep_ThunderResistance(const FGameplayAttributeDat
 void UCharacterAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, PhysicalResistance, OldPhysicalResistance);
+}
+
+void UCharacterAttributeSet::OnRep_FireBonus(const FGameplayAttributeData& OldFireBonus) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, FireBonus, OldFireBonus);
+}
+
+void UCharacterAttributeSet::OnRep_IceBonus(const FGameplayAttributeData& OldIceBonus) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, IceBonus, OldIceBonus);
+}
+
+void UCharacterAttributeSet::OnRep_ThunderBonus(const FGameplayAttributeData& OldThunderBonus) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, ThunderBonus, OldThunderBonus);
+}
+
+void UCharacterAttributeSet::OnRep_PhysicalBonus(const FGameplayAttributeData& OldPhysicalBonus) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCharacterAttributeSet, PhysicalBonus, OldPhysicalBonus);
 }
 
 void UCharacterAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties)

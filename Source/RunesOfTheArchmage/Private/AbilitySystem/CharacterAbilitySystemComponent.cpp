@@ -51,6 +51,8 @@ void UCharacterAbilitySystemComponent::AbilityPressedByInputTag(const FGameplayT
 		return;
 	}
 
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+	
 	for (auto& ActivatableAbilitySpec: GetActivatableAbilities())
 	{
 		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -72,6 +74,8 @@ void UCharacterAbilitySystemComponent::AbilityHeldByInputTag(const FGameplayTag&
 		return;
 	}
 
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+	
 	for (auto& ActivatableAbilitySpec: GetActivatableAbilities())
 	{
 		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -92,6 +96,8 @@ void UCharacterAbilitySystemComponent::AbilityReleasedByInputTag(const FGameplay
 		return;
 	}
 
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+	
 	for (auto& ActivatableAbilitySpec: GetActivatableAbilities())
 	{
 		if (ActivatableAbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && ActivatableAbilitySpec.IsActive())
@@ -237,6 +243,11 @@ void UCharacterAbilitySystemComponent::ServerSpendSpellPoint_Implementation(cons
 		else if (Status.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked) || Status.MatchesTagExact(GameplayTags.Abilities_Status_Equipped))
 		{
 			AbilitySpec->Level += 1;
+
+			if (IsPassiveSpell(*AbilitySpec))
+			{
+				OnPassiveAbilityUpgradeDelegate.Broadcast(GetAbilityTagFromSpec(*AbilitySpec));
+			}
 		}
 
 		ClientUpdateAbilityStatus(AbilityTag, Status, AbilitySpec->Level);
@@ -282,7 +293,7 @@ bool UCharacterAbilitySystemComponent::GetInfoByAbilityTag(const FGameplayTag& A
 	return false;
 }
 
-void UCharacterAbilitySystemComponent::ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag,
+void UCharacterAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag,
 	const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag)
 {
 	OnAbilityEquipped.Broadcast(AbilityTag, StatusTag, InputTag, PrevInputTag);
@@ -292,33 +303,12 @@ void UCharacterAbilitySystemComponent::ClearInputSlot(FGameplayAbilitySpec* Spec
 {
 	const FGameplayTag InputTag = GetInputTagFromSpec(*Spec);
 	Spec->DynamicAbilityTags.RemoveTag(InputTag);
-	MarkAbilitySpecDirty(*Spec);
 }
 
-void UCharacterAbilitySystemComponent::ClearAbilitiesOfInputSlot(const FGameplayTag& InputTag)
-{
-	FScopedAbilityListLock ActiveScopeLock(*this);
-	for (FGameplayAbilitySpec& Spec: GetActivatableAbilities())
-	{
-		if (AbilityHasInputSlot(&Spec, InputTag))
-		{
-			ClearInputSlot(&Spec);
-		}
-	}
-}
-
-bool UCharacterAbilitySystemComponent::AbilityHasInputSlot(const FGameplayAbilitySpec* Spec,
+bool UCharacterAbilitySystemComponent::AbilityHasInputSlot(const FGameplayAbilitySpec& Spec,
 	const FGameplayTag& InputTag)
 {
-	for (FGameplayTag Tag: Spec->DynamicAbilityTags)
-	{
-		if (Tag.MatchesTagExact(InputTag))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return Spec.DynamicAbilityTags.HasTagExact(InputTag);
 }
 
 void UCharacterAbilitySystemComponent::ServerEquipAbility_Implementation(const FGameplayTag& AbilityTag,
@@ -333,24 +323,85 @@ void UCharacterAbilitySystemComponent::ServerEquipAbility_Implementation(const F
 		const FGameplayTag& StatusTag = GetStatusFromSpec(*AbilitySpec);
 		if (StatusTag.MatchesTagExact(GameplayTags.Abilities_Status_Equipped) || StatusTag.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked))
 		{
-			// clear other abilities of this input slot
-			ClearAbilitiesOfInputSlot(InputTag);
+			if (!IsInputSlotEmpty(InputTag))
+			{
+				// deactivate previous passive ability
+				if (FGameplayAbilitySpec* SpecByInputTag = GetSpecByInputTag(InputTag))
+				{
+					if (AbilityTag.MatchesTagExact(GetAbilityTagFromSpec(*SpecByInputTag)))
+					{
+						// equipping what already equipped
+						ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped, InputTag, PrevInputTag);
+						return;
+					}
 
-			// clear this ability input slot
+					if (IsPassiveSpell(*SpecByInputTag))
+					{
+						DeactivatePassiveAbility.Broadcast(GetAbilityTagFromSpec(*SpecByInputTag));
+					}
+
+					// clear the already existing spell for this input
+					ClearInputSlot(SpecByInputTag);
+				}
+			}
+
+			if (!AbilitySpec->DynamicAbilityTags.HasTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+			{
+				// new equip ability does not have input tag slot = not active -> activate passive ability
+				if (IsPassiveSpell(*AbilitySpec))
+				{
+					TryActivateAbility(AbilitySpec->Handle);
+				}
+			}
+
+			// in case ability already has other input tag slot, clear it first
 			ClearInputSlot(AbilitySpec);
 			AbilitySpec->DynamicAbilityTags.AddTag(InputTag);
-
-			// set the ability to be equipped
-			if (StatusTag.MatchesTagExact(GameplayTags.Abilities_Status_Unlocked))
-			{
-				AbilitySpec->DynamicAbilityTags.RemoveTag(GameplayTags.Abilities_Status_Unlocked);
-				AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
-			}
+			
 			MarkAbilitySpecDirty(*AbilitySpec);
 		}
 		
 		ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped, InputTag, PrevInputTag);
 	}
+}
+
+bool UCharacterAbilitySystemComponent::IsInputSlotEmpty(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+	
+	for (FGameplayAbilitySpec& AbilitySpec: GetActivatableAbilities())
+	{
+		if (AbilityHasInputSlot(AbilitySpec, InputTag))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+FGameplayAbilitySpec* UCharacterAbilitySystemComponent::GetSpecByInputTag(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock ActiveScopeLoc(*this);
+
+	for (FGameplayAbilitySpec& AbilitySpec: GetActivatableAbilities())
+	{
+		if (AbilityHasInputSlot(AbilitySpec, InputTag))
+		{
+			return &AbilitySpec;
+		}
+	}
+
+	return nullptr;
+}
+
+bool UCharacterAbilitySystemComponent::IsPassiveSpell(const FGameplayAbilitySpec& Spec) const
+{
+	const UAbilityInfo* AbilityInfo = UAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	const FGameplayTag AbilityTag = GetAbilityTagFromSpec(Spec);
+	const FAbilityInfoData& AbilityInfoData = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+
+	return AbilityInfoData.AbilityTypeTag.MatchesTagExact(FGameplayTagSingleton::Get().Abilities_Type_Passive);
 }
 
 void UCharacterAbilitySystemComponent::OnRep_ActivateAbilities()

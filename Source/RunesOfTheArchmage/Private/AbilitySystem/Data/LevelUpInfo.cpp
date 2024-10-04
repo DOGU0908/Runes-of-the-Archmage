@@ -14,5 +14,5 @@ int32 ULevelUpInfo::FindLevelByExp(int32 Exp) const
 	}
 
 	// return max level
-	return LevelUpInfo.Num() + 1;
+	return LevelUpInfo.Num();
 }

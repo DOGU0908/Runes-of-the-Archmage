@@ -70,6 +70,16 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypeThunder, Instance.AttributesResistancesThunder);
 	Instance.DamageTypesToResistances.Add(Instance.DamageTypePhysical, Instance.AttributesResistancesPhysical);
 
+	// damage bonuses
+	Instance.AttributesBonusesFire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Bonus.Fire"));
+	Instance.AttributesBonusesIce = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Bonus.Ice"));
+	Instance.AttributesBonusesThunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Bonus.Thunder"));
+	Instance.AttributesBonusesPhysical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Attributes.Bonus.Physical"));
+	Instance.DamageTypesToDamageBonuses.Add(Instance.DamageTypePhysical, Instance.AttributesBonusesPhysical);
+	Instance.DamageTypesToDamageBonuses.Add(Instance.DamageTypeFire, Instance.AttributesBonusesFire);
+	Instance.DamageTypesToDamageBonuses.Add(Instance.DamageTypeIce, Instance.AttributesBonusesIce);
+	Instance.DamageTypesToDamageBonuses.Add(Instance.DamageTypeThunder, Instance.AttributesBonusesThunder);
+	
 	// debuffs
 	Instance.DebuffBurn = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Burn"));
 	Instance.DebuffFreeze = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Debuff.Freeze"));
@@ -96,6 +106,11 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.Abilities_IceStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.IceStorm"));
 	Instance.Abilities_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Thunder"));
 	Instance.Abilities_ThunderStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.ThunderStorm"));
+
+	Instance.Abilities_Passive_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.Physical"));
+	Instance.Abilities_Passive_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.Fire"));
+	Instance.Abilities_Passive_Ice = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.Ice"));
+	Instance.Abilities_Passive_Thunder = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Passive.Thunder"));
 
 	Instance.Abilities_Status_Locked = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Locked"));
 	Instance.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Status.Eligible"));

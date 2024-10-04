@@ -11,6 +11,8 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitiesGiven, UCharacterAbilitySystemComp
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 DECLARE_MULTICAST_DELEGATE_FourParams(FAbilityEquipped, const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDeactivatePassiveAbility, const FGameplayTag& AbilityTag);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPassiveAbilityUpgrade, const FGameplayTag& AbilityTag);
 
 /**
  * 
@@ -59,13 +61,21 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& InputTag);
 
+	UFUNCTION(Client, Reliable)
 	void ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, const FGameplayTag& InputTag, const FGameplayTag& PrevInputTag);
 
-	void ClearInputSlot(FGameplayAbilitySpec* Spec);
-	void ClearAbilitiesOfInputSlot(const FGameplayTag& InputTag);
-	static bool AbilityHasInputSlot(const FGameplayAbilitySpec* Spec, const FGameplayTag& InputTag);
+	static void ClearInputSlot(FGameplayAbilitySpec* Spec);
+	static bool AbilityHasInputSlot(const FGameplayAbilitySpec& Spec, const FGameplayTag& InputTag);
 	
 	FAbilityEquipped OnAbilityEquipped;
+
+	FDeactivatePassiveAbility DeactivatePassiveAbility;
+
+	bool IsInputSlotEmpty(const FGameplayTag& InputTag);
+	FGameplayAbilitySpec* GetSpecByInputTag(const FGameplayTag& InputTag);
+	bool IsPassiveSpell(const FGameplayAbilitySpec& Spec) const;
+
+	FOnPassiveAbilityUpgrade OnPassiveAbilityUpgradeDelegate;
 	
 protected:
 	// replicate to client

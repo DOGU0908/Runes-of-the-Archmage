@@ -209,6 +209,42 @@ public:
 
 	UFUNCTION()
 	void OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const;
+
+	/*
+	 * Base Attributes - Damage Type Bonus
+	 */
+
+	// fire bonus
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_FireBonus, Category="Resistance Attributes")
+	FGameplayAttributeData FireBonus;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, FireBonus);
+
+	UFUNCTION()
+	void OnRep_FireBonus(const FGameplayAttributeData& OldFireBonus) const;
+
+	// ice bonus
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_IceBonus, Category="Resistance Attributes")
+	FGameplayAttributeData IceBonus;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, IceBonus);
+
+	UFUNCTION()
+	void OnRep_IceBonus(const FGameplayAttributeData& OldIceBonus) const;
+
+	// thunder bonus
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ThunderBonus, Category="Resistance Attributes")
+	FGameplayAttributeData ThunderBonus;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, ThunderBonus);
+
+	UFUNCTION()
+	void OnRep_ThunderBonus(const FGameplayAttributeData& OldThunderBonus) const;
+
+	// physical bonus
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PhysicalBonus, Category="Resistance Attributes")
+	FGameplayAttributeData PhysicalBonus;
+	ATTRIBUTE_ACCESSORS(UCharacterAttributeSet, PhysicalBonus);
+
+	UFUNCTION()
+	void OnRep_PhysicalBonus(const FGameplayAttributeData& OldPhysicalBonus) const;
 	
 	/*
 	 * Temp Attributes - not replicated

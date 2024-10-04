@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilityTypes.h"
 #include "GameplayTagSingleton.h"
+#include "AbilitySystem/CharacterAbilitySystemComponent.h"
 #include "AbilitySystem/CharacterAttributeSet.h"
 
 struct FDamageStatics
@@ -17,6 +18,11 @@ struct FDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(IceResistance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(ThunderResistance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(PhysicalResistance);
+
+	DECLARE_ATTRIBUTE_CAPTUREDEF(FireBonus);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(IceBonus);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(ThunderBonus);
+	DECLARE_ATTRIBUTE_CAPTUREDEF(PhysicalBonus);
 	
 	FDamageStatics()
 	{
@@ -27,6 +33,11 @@ struct FDamageStatics
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, IceResistance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, ThunderResistance, Target, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, PhysicalResistance, Target, false);
+
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, FireBonus, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, IceBonus, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, ThunderBonus, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCharacterAttributeSet, PhysicalBonus, Source, false);
 	}
 };
 
@@ -46,6 +57,11 @@ UDamageExecutionCalculation::UDamageExecutionCalculation()
 	RelevantAttributesToCapture.Add(GetDamageStatics().IceResistanceDef);
 	RelevantAttributesToCapture.Add(GetDamageStatics().ThunderResistanceDef);
 	RelevantAttributesToCapture.Add(GetDamageStatics().PhysicalResistanceDef);
+
+	RelevantAttributesToCapture.Add(GetDamageStatics().FireBonusDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().IceBonusDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().ThunderBonusDef);
+	RelevantAttributesToCapture.Add(GetDamageStatics().PhysicalBonusDef);
 }
 
 void UDamageExecutionCalculation::Execute_Implementation(
@@ -54,7 +70,8 @@ void UDamageExecutionCalculation::Execute_Implementation(
 {
 	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefs;
 	const FGameplayTagSingleton& GameplayTags = FGameplayTagSingleton::Get();
-		
+	UCharacterAbilitySystemComponent* SourceAbilitySystemComponent = Cast<UCharacterAbilitySystemComponent>(ExecutionParams.GetSourceAbilitySystemComponent());
+	
 	TagsToCaptureDefs.Add(GameplayTags.AttributesSecondaryArmor, GetDamageStatics().ArmorDef);
 	TagsToCaptureDefs.Add(GameplayTags.AttributesSecondaryCriticalChance, GetDamageStatics().CriticalChanceDef);
 
@@ -62,6 +79,11 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesIce, GetDamageStatics().IceResistanceDef);
 	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesThunder, GetDamageStatics().ThunderResistanceDef);
 	TagsToCaptureDefs.Add(GameplayTags.AttributesResistancesPhysical, GetDamageStatics().PhysicalResistanceDef);
+
+	TagsToCaptureDefs.Add(GameplayTags.AttributesBonusesFire, GetDamageStatics().FireBonusDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesBonusesIce, GetDamageStatics().IceBonusDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesBonusesThunder, GetDamageStatics().ThunderBonusDef);
+	TagsToCaptureDefs.Add(GameplayTags.AttributesBonusesPhysical, GetDamageStatics().PhysicalBonusDef);
 	
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FGameplayEffectContextBase* GameplayEffectContext = static_cast<FGameplayEffectContextBase*>(Spec.GetContext().Get());
@@ -74,7 +96,6 @@ void UDamageExecutionCalculation::Execute_Implementation(
 	for (const auto& Pair: GameplayTags.DamageTypesToDebuffs)
 	{
 		const FGameplayTag& DamageType = Pair.Key;
-		const FGameplayTag& DebuffType = Pair.Value;
 		
 		// -1.f is no damage, not healing
 		if (Spec.GetSetByCallerMagnitude(DamageType, false, -1.f) >= 0.f)
@@ -108,11 +129,18 @@ void UDamageExecutionCalculation::Execute_Implementation(
 		checkf(TagsToCaptureDefs.Contains(Pair.Value), TEXT("TagsToCaptureDefs does not contain the tag"));
 
 		// do not show error log for some damage types not existing, this is legit
-		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);
 
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(TagsToCaptureDefs[Pair.Value], AggregatorEvaluateParameters, Resistance);
 		Resistance = FMath::Clamp(Resistance, 0.f, 100.f);
+		
+		if (DamageTypeValue > 0.f)
+		{
+			float DamageTypeBonus = 0.f;
+			ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(TagsToCaptureDefs[GameplayTags.DamageTypesToDamageBonuses[Pair.Key]], AggregatorEvaluateParameters, DamageTypeBonus);
+			DamageTypeValue *= 1.f + DamageTypeBonus / 10.f;
+		}
 		
 		Damage += DamageTypeValue * (1.f - Resistance / 100.f);
 	}

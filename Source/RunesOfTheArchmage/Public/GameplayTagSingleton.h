@@ -72,6 +72,13 @@ public:
 	FGameplayTag AttributesResistancesThunder;
 	FGameplayTag AttributesResistancesPhysical;
 
+	// damage bonuses
+	FGameplayTag AttributesBonusesFire;
+	FGameplayTag AttributesBonusesIce;
+	FGameplayTag AttributesBonusesThunder;
+	FGameplayTag AttributesBonusesPhysical;
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToDamageBonuses;
+	
 	// debuffs
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
 	FGameplayTag DebuffBurn;
@@ -93,6 +100,11 @@ public:
 	FGameplayTag Abilities_IceStorm;
 	FGameplayTag Abilities_Thunder;
 	FGameplayTag Abilities_ThunderStorm;
+
+	FGameplayTag Abilities_Passive_Physical;
+	FGameplayTag Abilities_Passive_Fire;
+	FGameplayTag Abilities_Passive_Ice;
+	FGameplayTag Abilities_Passive_Thunder;
 
 	FGameplayTag Abilities_Status_Locked;
 	FGameplayTag Abilities_Status_Eligible;
