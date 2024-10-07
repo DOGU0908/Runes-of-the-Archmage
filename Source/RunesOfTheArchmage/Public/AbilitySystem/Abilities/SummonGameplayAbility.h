@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/GameplayAbilityDamage.h"
-#include "ProjectileGameplayAbility.generated.h"
+#include "SummonGameplayAbility.generated.h"
 
-class AProjectile;
+class AStorm;
 /**
  * 
  */
 UCLASS()
-class RUNESOFTHEARCHMAGE_API UProjectileGameplayAbility : public UGameplayAbilityDamage
+class RUNESOFTHEARCHMAGE_API USummonGameplayAbility : public UGameplayAbilityDamage
 {
 	GENERATED_BODY()
 
@@ -19,9 +19,9 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AProjectile> ProjectileClass;
+	TSubclassOf<AStorm> StormClass;
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const FVector& TargetLocation);
+	void SpawnStorm(const FVector& TargetLocation);
 	
 };

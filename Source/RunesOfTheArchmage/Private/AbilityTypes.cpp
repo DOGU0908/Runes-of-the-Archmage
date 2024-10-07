@@ -137,7 +137,7 @@ bool FGameplayEffectContextBase::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		{
 			if (!DamageType.IsValid())
 			{
-				DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
+				DamageType = MakeShared<FGameplayTag>();
 			}
 			DamageType->NetSerialize(Ar, Map, bOutSuccess);
 		}

@@ -5,7 +5,6 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "GameplayTagSingleton.h"
 #include "Actor/Projectile.h"
 #include "Combat/CombatInterface.h"
 
