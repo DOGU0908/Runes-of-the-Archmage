@@ -121,6 +121,8 @@ void FGameplayTagSingleton::InitializeNativeGameplayTags()
 	Instance.Abilities_Type_Passive = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Type.Passive"));
 	Instance.Abilities_Type_None = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.Type.None"));
 
+	Instance.Abilities_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Abilities.HitReact"));
+
 	// cooldowns
 	Instance.Cooldown_Fire = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.Fire"));
 	Instance.Cooldown_FireStorm = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Cooldown.FireStorm"));

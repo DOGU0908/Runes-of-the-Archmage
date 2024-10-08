@@ -135,7 +135,7 @@ void UCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 			{
 				// activate ability if the target has the specified tag
 				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FGameplayTagSingleton::Get().EffectsHitReact);
+				TagContainer.AddTag(FGameplayTagSingleton::Get().Abilities_HitReact);
 				EffectProperties.TargetAbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 			}
 			else

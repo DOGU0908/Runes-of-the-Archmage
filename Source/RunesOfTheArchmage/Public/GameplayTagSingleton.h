@@ -115,6 +115,8 @@ public:
 	FGameplayTag Abilities_Type_Passive;
 	FGameplayTag Abilities_Type_None;
 
+	FGameplayTag Abilities_HitReact;
+
 	// cooldowns
 	FGameplayTag Cooldown_Fire;
 	FGameplayTag Cooldown_FireStorm;
