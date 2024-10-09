@@ -123,6 +123,11 @@ void AEnemy::FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 	}
 }
 
+void AEnemy::SetLevel(const int32 InLevel)
+{
+	Level = InLevel;
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();

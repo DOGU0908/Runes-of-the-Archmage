@@ -51,6 +51,8 @@ public:
 	virtual AActor* GetCombatTarget_Implementation() override;
 
 	virtual void FreezeTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
+
+	void SetLevel(const int32 InLevel);
 	
 protected:
 	virtual void BeginPlay() override;
