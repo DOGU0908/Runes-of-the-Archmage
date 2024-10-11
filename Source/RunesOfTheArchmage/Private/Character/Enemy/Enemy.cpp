@@ -10,6 +10,7 @@
 #include "AI/EnemyAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemy/DropItem.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "RunesOfTheArchmage/RunesOfTheArchmage.h"
@@ -91,6 +92,8 @@ void AEnemy::Die()
 	{
 		AIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	}
+
+	SpawnDropItem();
 	
 	Super::Die();
 }
@@ -183,4 +186,21 @@ void AEnemy::InitAbilityActorInfo()
 void AEnemy::InitializeDefaultAttributes() const
 {
 	UAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void AEnemy::SpawnDropItem()
+{
+	if (IsValid(DropItems))
+	{
+		for (auto& DropItem: DropItems->GetDropItems())
+		{
+			if (IsValid(DropItem.DropItemClass))
+			{
+				FVector RandomSpawnLocation = GetActorLocation() + FMath::VRand() * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
+				RandomSpawnLocation.Z = GetActorLocation().Z;
+
+				GetWorld()->SpawnActor<AActor>(DropItem.DropItemClass, RandomSpawnLocation, FRotator::ZeroRotator);
+			}
+		}
+	}
 }

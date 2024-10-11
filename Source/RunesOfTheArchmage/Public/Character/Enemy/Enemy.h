@@ -9,6 +9,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Enemy.generated.h"
 
+class UDropItem;
 class AEnemyAIController;
 class UBehaviorTree;
 class UWidgetComponent;
@@ -75,5 +76,16 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category="Combat")
 	TObjectPtr<AActor> CombatTarget;
-	
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnDropItem();
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDropItem> DropItems;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MinSpawnDistance = 100.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxSpawnDistance = 500.f;
 };
