@@ -43,5 +43,5 @@ void AEnemySpawnVolume::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, A
 	}
 
 	// enable the following to set the spawn volume one time fire, or create variable to control this if needed
-	// BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
